@@ -1,0 +1,15 @@
+PATH:: C:\Users\UsrXModel1\Documents\02_TRABALLO\03_MODELOS\01_PROXECTOS_MOHID\I20200601SCALVO\GRAFICAS\corrientes
+FILEIN:: MOHID_Hydrodynamic_Vigo_20180711_0000.hdf5
+FILEOUT:: Hydrodynamic_Vigo_Sup
+NX:: 2
+NY:: 2
+RESOLUTION:: f
+SCALE:: 5
+NTIME:: 1
+NLEVEL:: 26
+TITLE:: surface current:
+#TITLE:: Corrente prof = 9 m, preamar: 2016/03/13 19:00 UTC
+#STYLE:: contour
+STYLE:: cvector
+#STYLE:: stream
+LIMITS:: -9.;42.10;-8.56;42.36
