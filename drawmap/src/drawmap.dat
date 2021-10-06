@@ -8,7 +8,7 @@ SCALE:: 5
 NTIME:: 1
 NLEVEL:: 26
 TITLE:: surface current:
-#TITLE:: Corrente prof = 9 m, preamar: 2016/03/13 19:00 UTC
+#TITLE:: Corrente prof = 9 m, preamar: 2016/03/13 17:00 UTC
 #STYLE:: contour
 STYLE:: cvector
 #STYLE:: stream
