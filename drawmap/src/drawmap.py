@@ -22,7 +22,7 @@ import numpy as np
 from datetime import datetime
 
 
-from customize import add_lib
+from drawmap.src.customize import add_lib
 add_lib()
 
 from intecmar.fichero import input_file
