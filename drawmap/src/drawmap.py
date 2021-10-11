@@ -20,6 +20,7 @@ drawmap.py
 import numpy as np
 from common import read_input
 from common.readers import reader_HDF
+from common.readers import reader_NetCDF
 from drawcurrents import drawcurrents
 
 
