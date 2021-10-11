@@ -1,5 +1,5 @@
 {
-    "path_in": "C:\\Users\\UsrXModel1\\Documents\\02_TRABALLO\\03_MODELOS\\01_PROXECTOS_MOHID\\I20200601SCALVO\\GRAFICAS\\corrientes",
+    "path_in": "../datos/drawmap",
     "file_in": "MOHID_Hydrodynamic_Vigo_20180711_0000.hdf5",
     "file_out": "Hydrodynamic_Vigo_Sup",
     "nx": 2,
