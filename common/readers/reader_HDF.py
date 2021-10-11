@@ -4,7 +4,13 @@ import h5py
 from .reader import Reader
 
 
+
 class ReaderHDF(Reader):
+
+    names = {
+        'northward_velocity': '/Results/velocity V/velocity V_',
+        'eastward_velocity': '/Results/velocity U/velocity U_'
+    }
 
     def open(self, file):
         return h5py.File(file)
@@ -38,7 +44,8 @@ class ReaderHDF(Reader):
         return datetime(year=int(date_in[0]), month=int(date_in[1]), day=int(date_in[2]),
                         hour=int(date_in[3]), minute=int(date_in[4]), second=int(date_in[5]))
 
-    def get_variable(self, path, n_time):
+    def get_variable(self, name_var, n_time):
+        path = self.names[name_var]
         return self.dataset[path + str(n_time).zfill(5)]
 
 
