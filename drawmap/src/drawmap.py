@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+                                     #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 drawmap.py
@@ -70,6 +70,9 @@ def main():
     style = inputs['style']
     limits = inputs['limits']
 
+    u_name = inputs['u']
+    v_name = inputs['v']
+
     print('Opening: {0}'.format(file_name))
 
     reader = reader_HDF.ReaderHDF(file_name)
@@ -83,8 +86,8 @@ def main():
     lat = reader.latitudes
     lon = reader.longitudes
 
-    u = reader.get_variable('/Results/velocity U/velocity U_', time)
-    v = reader.get_variable('/Results/velocity V/velocity V_', time)
+    u = reader.get_variable(u_name, time)
+    v = reader.get_variable(v_name, time)
 
     nlon = reader.n_longitudes
     nlat = reader.n_latitudes

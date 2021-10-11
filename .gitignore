@@ -133,3 +133,5 @@ dmypy.json
 .pyre/
 /others/
 /datos/
+/venv310/
+/venv10/

@@ -4,6 +4,8 @@
     "file_out": "Hydrodynamic_Vigo_Sup",
     "nx": 2,
     "ny": 2,
+    "u": "eastward_velocity",
+    "v": "northward_velocity",
     "resolution": "f",
     "scale":  5,
     "n_time": 1,
