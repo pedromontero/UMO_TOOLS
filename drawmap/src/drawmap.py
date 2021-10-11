@@ -17,16 +17,9 @@ drawmap.py
 
 
 """
-import h5py
 import numpy as np
-from datetime import datetime
-
-# from customize import add_lib
-# add_lib()
-
-# from intecmar.fichero import input_file
-
 from common import read_input
+from common.readers import reader_HDF
 from drawcurrents import drawcurrents
 
 
@@ -78,33 +71,25 @@ def main():
 
     print('Opening: {0}'.format(file_name))
 
-    f = h5py.File(file_name, "r")
+    reader = reader_HDF.ReaderHDF(file_name)
 
-    date = f['/Time/Time_0000' + time]
-    ano = int(date[0])
-    mes = int(date[1])
-    dia = int(date[2])
-    hora = int(date[3])
-    minuto = int(date[4])
-
-    data = datetime(year=ano, month=mes, day=dia, hour=hora, minute=minuto)
+    data = reader.get_date(time)
     data_str = data.strftime("%Y-%m-%d %H:%M UTC")
-    print(data_str)
     data_comp = data.strftime("%Y%m%d%H%M")
     title = title + " " + data_str
     file_out = file_out + '_' + data_comp + '.png'
 
-    lat = f['/Grid/Latitude']
-    lon = f['/Grid/Longitude']
+    lat = reader.latitudes
+    lon = reader.longitudes
 
-    u = f['/Results/velocity U/velocity U_0000' + time]
-    v = f['/Results/velocity V/velocity V_0000' + time]
+    u = reader.get_variable('/Results/velocity U/velocity U_', time)
+    v = reader.get_variable('/Results/velocity V/velocity V_', time)
 
-    nlon = lat.shape[0]
-    nlat = lon.shape[1]
+    nlon = reader.n_longitudes
+    nlat = reader.n_latitudes
 
-    lats = lat[0, 0:nlat - 1]
-    lons = lon[0:nlon - 1, 0]
+    lats = lat[0:nlat - 1]
+    lons = lon[0:nlon - 1]
 
     us = u[level, 0:nlon - 1, 0:nlat - 1]
     vs = v[level, 0:nlon - 1, 0:nlat - 1]
@@ -113,7 +98,7 @@ def main():
 
     mod = pow((pow(ust, 2) + pow(vst, 2)), .5)
 
-    f.close()
+    reader.close()
 
     drawcurrents(nx, ny, scale, resolution, level, time, lats, lons, ust, vst, mod, file_out, title, style, limits)
 

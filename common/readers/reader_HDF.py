@@ -1,7 +1,7 @@
 
 from datetime import datetime
 import h5py
-from reader import Reader
+from .reader import Reader
 
 
 class ReaderHDF(Reader):
@@ -28,7 +28,7 @@ class ReaderHDF(Reader):
             return lon_in
         elif len(lon_in.shape) == 2:
             self.n_longitudes = lon_in.shape[0]
-            return lon_in[0, ]
+            return lon_in[:, 1]
 
     def get_dates(self):
         return self.dataset['/Time']

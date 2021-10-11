@@ -3,7 +3,7 @@ def drawcurrents(nx, ny, scale, resolution, level, time, lats, lons, ust, vst, m
 
     :return:
     """
-
+    import numpy as np
     import matplotlib.pyplot as plt
     from mpl_toolkits.basemap import Basemap
 
