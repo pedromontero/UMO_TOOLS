@@ -18,19 +18,17 @@ class ReaderNetCDF(Reader):
         lat_in = self.get_var('latitude')
         if len(lat_in.shape) == 1:
             self.n_latitudes = lat_in.shape[0]
-            return lat_in
         elif len(lat_in.shape) == 2:
             self.n_latitudes = lat_in.shape[1]
-            return lat_in[0, ]
+        return lat_in
 
     def get_longitudes(self):
         lon_in = self.get_var('longitude')
         if len(lon_in.shape) == 1:
             self.n_longitudes = lon_in.shape[0]
-            return lon_in
         elif len(lon_in.shape) == 2:
             self.n_longitudes = lon_in.shape[0]
-            return lon_in[:, 1]
+        return lon_in
 
     def get_dates(self):
         times_in = self.get_var('time')
@@ -54,18 +52,5 @@ class ReaderNetCDF(Reader):
                     nome_atributo = (getattr(self.variables[var], 'long_name'))
                     if nome_atributo == var_name:
                         return self.variables[var]
-
-
-
-    def getvar_longname(f, nome_long):
-        """Return values using the CF long name of a variable in a netCDF file."""
-        for var in f.variables:
-            for atributo in (f.variables[var].ncattrs()):
-                if atributo == 'long_name':
-                    nome_atributo = (getattr(f.variables[var], 'long_name'))
-                    if nome_atributo == nome_long:
-                        return f.variables[var]
-        print('long_name = {0} not found'.format(nome_long))
-
 
 
