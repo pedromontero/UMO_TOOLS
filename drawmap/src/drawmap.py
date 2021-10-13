@@ -40,7 +40,6 @@ def main():
     print("               DRAWMAP")
     print("________________________________________\n")
 
-
     # Read input file
     input_file = 'drawmap_ncdf.json'
     input_keys = ['path_in',
@@ -78,13 +77,9 @@ def main():
 
     print('Opening: {0}'.format(file_name))
 
-    hdf = False
-    ncdf = False
-
     extension = file_hdf.split('.')[1]
     hdf = (extension == 'hdf' or extension == 'hdf5')
     ncdf = (extension == 'nc' or extension == 'nc4')
-    print(hdf, ncdf)
 
     if hdf:
         reader = reader_HDF.ReaderHDF(file_name)
@@ -103,23 +98,19 @@ def main():
     u = reader.get_variable(u_name, time)
     v = reader.get_variable(v_name, time)
 
-    nlon = reader.n_longitudes
-    nlat = reader.n_latitudes
-
     if reader.coordinates_rank == 1:
-        lats = lat[0:nlat - 1]
-        lons = lon[0:nlon - 1]
+        lats = lat[0:reader.n_latitudes - 1]
+        lons = lon[0:reader.n_longitudes - 1]
     elif reader.coordinates_rank == 2:
-        lats = lat[0:nlon-1, 0:nlat - 1]
-        lons = lon[0:nlon-1, 0:nlat - 1]
+        lats = lat[0:reader.n_longitudes - 1, 0:reader.n_latitudes - 1]
+        lons = lon[0:reader.n_longitudes - 1, 0:reader.n_latitudes - 1]
 
     if len(u.shape) == 3:
-        print(f'entro y nlon = {nlon} y nlat = {nlat}')
-        us = u[level, 0:nlat - 1, 0:nlon - 1]
-        vs = v[level, 0:nlat - 1, 0:nlon - 1]
+        us = u[level, 0:reader.n_latitudes - 1, 0:reader.n_longitudes - 1]
+        vs = v[level, 0:reader.n_latitudes - 1, 0:reader.n_longitudes - 1]
     elif len(u.shape) == 2:
-        us = u[0:nlat - 1, 0:nlon - 1]
-        vs = v[0:nlat - 1, 0:nlon - 1]
+        us = u[0:reader.n_latitudes - 1, 0:reader.n_longitudes - 1]
+        vs = v[0:reader.n_latitudes - 1, 0:reader.n_longitudes - 1]
 
     mod = pow((pow(us, 2) + pow(vs, 2)), .5)
 
