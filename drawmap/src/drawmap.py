@@ -41,7 +41,7 @@ def main():
     print("________________________________________\n")
 
     # Read input file
-    input_file = 'drawmap_ncdf.json'
+    input_file = 'drawmap.json'
     input_keys = ['path_in',
                   'file_in',
                   'file_out',
