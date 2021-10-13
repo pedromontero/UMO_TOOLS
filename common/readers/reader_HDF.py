@@ -1,8 +1,8 @@
 
 from datetime import datetime
+import numpy as np
 import h5py
 from .reader import Reader
-
 
 
 class ReaderHDF(Reader):
@@ -46,7 +46,12 @@ class ReaderHDF(Reader):
 
     def get_variable(self, name_var, n_time):
         path = self.names[name_var]
-        return self.dataset[path + str(n_time).zfill(5)]
+        variable = self.dataset[path + str(n_time).zfill(5)]
+        if len(variable.shape) == 2:
+            variable = np.transpose(variable)
+        elif len(variable.shape) == 3:
+            variable = np.transpose(variable, (0, 2, 1))
+        return variable
 
 
 
