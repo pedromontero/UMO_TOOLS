@@ -12,7 +12,6 @@ class BoundaryBox:
 
     def middle_lat(self):
         x = self.lat_min + 0.5 * (self.lat_max - self.lat_min)
-        print(x)
         return x
 
     def middle_lon(self):

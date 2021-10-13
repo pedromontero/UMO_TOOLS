@@ -3,21 +3,21 @@
 """
 drawmap.py
 
-@Purpose: draw a current map from a hdf mohid output
-@version: 0.1
+@Purpose: draw a current map from a hdf mohid or netcdfoutput
+@version: 1.0
 
-@python version: 3.4
+@python version: 3.9
 @author: Pedro Montero
 @license: INTECMAR
-@requires: intecmar.fichero, h5py, matplotlib, numpy, toolkits.basemap
+@requires: matplotlib, numpy, toolkits.basemap
 
-@date 2015/07/03
+@date 2021/10/13
 
 @history:
 
 
 """
-import numpy as np
+
 from common import read_input
 from common.readers import reader_HDF
 from common.readers import reader_NetCDF
