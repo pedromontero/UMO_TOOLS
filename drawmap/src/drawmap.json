@@ -6,11 +6,11 @@
     "ny": 2,
     "u": "eastward_velocity",
     "v": "northward_velocity",
-    "resolution": "f",
+    "resolution": "c",
     "scale":  5,
     "n_time": 1,
     "n_level": 26,
     "title": "surface current:",
     "style": "cvector",
-    "limits": [-9,42.10,-8.56,42.36]
+    "limits": [42.10,42.36,-9,-8.56]
 }
