@@ -2,7 +2,7 @@
 from datetime import datetime
 import numpy as np
 import h5py
-from .reader import Reader
+from reader import Reader
 
 
 class ReaderHDF(Reader):

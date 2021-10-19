@@ -57,7 +57,7 @@ def main():
     inputs = read_input(input_file, input_keys)
 
     file_path = inputs['path_in']
-    file_hdf = inputs['file_in']
+    file_in = inputs['file_in']
     nx = inputs['nx']
     ny = inputs['ny']
     scale = inputs['scale']
@@ -67,7 +67,7 @@ def main():
     file_hdf_out = inputs['file_out']
     file_out = os.path.join(file_path, file_hdf_out)
     title = inputs['title']
-    file_name = os.path.join(file_path, file_hdf)
+    file_name = os.path.join(file_path, file_in)
     style = inputs['style']
     limits = inputs['limits']
     boundary_box =BoundaryBox(limits[0], limits[1], limits[2], limits[3])
@@ -77,7 +77,7 @@ def main():
 
     print('Opening: {0}'.format(file_name))
 
-    extension = file_hdf.split('.')[1]
+    extension = file_in.split('.')[1]
     hdf = (extension == 'hdf' or extension == 'hdf5')
     ncdf = (extension == 'nc' or extension == 'nc4')
 
