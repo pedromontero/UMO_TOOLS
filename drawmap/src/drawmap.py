@@ -70,7 +70,7 @@ def main():
     file_name = os.path.join(file_path, file_in)
     style = inputs['style']
     limits = inputs['limits']
-    boundary_box =BoundaryBox(limits[0], limits[1], limits[2], limits[3])
+    boundary_box = BoundaryBox(limits[0], limits[1], limits[2], limits[3])
 
     u_name = inputs['u']
     v_name = inputs['v']
