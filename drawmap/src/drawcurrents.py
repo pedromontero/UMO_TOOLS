@@ -1,25 +1,37 @@
-def drawcurrents(nx, ny, scale, resolution, level, time, lats, lons, ust, vst, mod, file_out, title, style, limits):
+
+
+def drawcurrents(coordinates_rank, nx, ny, scale, resolution,
+                 level, time, lat, lon, ust, vst, mod,
+                 file_out, title, style, boundary_box):
     """
 
     :return:
     """
-
+    import numpy as np
     import matplotlib.pyplot as plt
     from mpl_toolkits.basemap import Basemap
 
     fig = plt.figure(figsize=(10, 10))
     ax = fig.add_subplot(111)
 
-    m = Basemap(llcrnrlon=limits[0], llcrnrlat=limits[1], urcrnrlon=limits[2], urcrnrlat=limits[3],
-                resolution=resolution, projection='tmerc', lon_0=-8, lat_0=42)
+    dx = 0.1
+    middle_lon = boundary_box.middle_lon()
+    middle_lat = boundary_box.middle_lat()
+    m = Basemap(llcrnrlon=boundary_box.lon_min - dx,
+                llcrnrlat=boundary_box.lat_min - dx,
+                urcrnrlon=boundary_box.lon_max + dx,
+                urcrnrlat=boundary_box.lat_max + dx,
+                resolution=resolution, projection='tmerc', lon_0=middle_lon, lat_0=middle_lat)
 
     m.drawcoastlines()
-    m.fillcontinents(color='grey', lake_color='aqua')
+    #m.fillcontinents(color='grey', lake_color='aqua')
 
 
     #m.drawmapboundary(fill_color='aqua')
 
-    lon, lat = np.meshgrid(lons, lats)
+    if coordinates_rank == 1:
+        lon, lat = np.meshgrid(lon, lat)
+
     x, y = m(lon, lat)
 
     # draw filled contours.
@@ -32,6 +44,9 @@ def drawcurrents(nx, ny, scale, resolution, level, time, lats, lons, ust, vst, m
     if style == 'cvector':
         clim = [0., 0.5]
         cs = plt.quiver(x[::nx, ::ny], y[::nx, ::ny], ust[::nx, ::ny], vst[::nx, ::ny], mod[::nx, ::ny], clim=clim, scale=scale)
+    if style == 'windbarbs':
+        clim = [0., 10]
+        cs = plt.barbs(x[::nx, ::ny], y[::nx, ::ny], ust[::nx, ::ny], vst[::nx, ::ny], mod[::nx, ::ny], clim=clim,cmap=plt.cm.jet)
 
     if style == 'stream':
 

@@ -3,31 +3,43 @@
 """
 drawmap.py
 
-@Purpose: draw a current map from a hdf mohid output
-@version: 0.1
+@Purpose: draw a current map from a hdf mohid or netcdfoutput
+@version: 1.0
 
-@python version: 3.4
+@python version: 3.9
 @author: Pedro Montero
 @license: INTECMAR
-@requires: intecmar.fichero, h5py, matplotlib, numpy, toolkits.basemap
+@requires: matplotlib, numpy, toolkits.basemap
 
-@date 2015/07/03
+@date 2021/10/13
 
 @history:
 
 
 """
-import h5py
-import numpy as np
-from datetime import datetime
 
-# from customize import add_lib
-# add_lib()
 
-# from intecmar.fichero import input_file
-
+from common.readers.reader_factory import read_factory
 from common import read_input
+from common.boundarybox import BoundaryBox
 from drawcurrents import drawcurrents
+
+
+def read_inputs(input_file):
+    """Read keywords for options"""
+    input_keys = ['path_in',
+                  'file_in',
+                  'file_out',
+                  'nx',
+                  'ny',
+                  'resolution',
+                  'scale',
+                  'n_time',
+                  'n_level',
+                  'title',
+                  'style',
+                  'limits']
+    return read_input(input_file, input_keys)
 
 
 def main():
@@ -44,25 +56,11 @@ def main():
     print("               DRAWMAP")
     print("________________________________________\n")
 
-
     # Read input file
-    input_file = 'drawmap.json'
-    input_keys = ['path_in',
-                  'file_in',
-                  'file_out',
-                  'nx',
-                  'ny',
-                  'resolution',
-                  'scale',
-                  'n_time',
-                  'n_level',
-                  'title',
-                  'style',
-                  'limits']
-    inputs = read_input(input_file, input_keys)
+    inputs = read_inputs('drawmap.json')
 
     file_path = inputs['path_in']
-    file_hdf = inputs['file_in']
+    file_in = inputs['file_in']
     nx = inputs['nx']
     ny = inputs['ny']
     scale = inputs['scale']
@@ -72,50 +70,50 @@ def main():
     file_hdf_out = inputs['file_out']
     file_out = os.path.join(file_path, file_hdf_out)
     title = inputs['title']
-    file_name = os.path.join(file_path, file_hdf)
+    file_name = os.path.join(file_path, file_in)
     style = inputs['style']
     limits = inputs['limits']
+    boundary_box = BoundaryBox(limits[0], limits[1], limits[2], limits[3])
+
+    u_name = inputs['u']
+    v_name = inputs['v']
 
     print('Opening: {0}'.format(file_name))
 
-    f = h5py.File(file_name, "r")
+    factory = read_factory(file_name)
+    reader = factory.get_reader()
 
-    date = f['/Time/Time_0000' + time]
-    ano = int(date[0])
-    mes = int(date[1])
-    dia = int(date[2])
-    hora = int(date[3])
-    minuto = int(date[4])
-
-    data = datetime(year=ano, month=mes, day=dia, hour=hora, minute=minuto)
+    data = reader.get_date(time)
     data_str = data.strftime("%Y-%m-%d %H:%M UTC")
-    print(data_str)
     data_comp = data.strftime("%Y%m%d%H%M")
     title = title + " " + data_str
     file_out = file_out + '_' + data_comp + '.png'
 
-    lat = f['/Grid/Latitude']
-    lon = f['/Grid/Longitude']
+    lat = reader.latitudes
+    lon = reader.longitudes
 
-    u = f['/Results/velocity U/velocity U_0000' + time]
-    v = f['/Results/velocity V/velocity V_0000' + time]
+    u = reader.get_variable(u_name, time)
+    v = reader.get_variable(v_name, time)
 
-    nlon = lat.shape[0]
-    nlat = lon.shape[1]
+    if reader.coordinates_rank == 1:
+        lats = lat[0:reader.n_latitudes - 1]
+        lons = lon[0:reader.n_longitudes - 1]
+    elif reader.coordinates_rank == 2:
+        lats = lat[0:reader.n_longitudes - 1, 0:reader.n_latitudes - 1]
+        lons = lon[0:reader.n_longitudes - 1, 0:reader.n_latitudes - 1]
 
-    lats = lat[0, 0:nlat - 1]
-    lons = lon[0:nlon - 1, 0]
+    if len(u.shape) == 3:
+        us = u[level, 0:reader.n_latitudes - 1, 0:reader.n_longitudes - 1]
+        vs = v[level, 0:reader.n_latitudes - 1, 0:reader.n_longitudes - 1]
+    elif len(u.shape) == 2:
+        us = u[0:reader.n_latitudes - 1, 0:reader.n_longitudes - 1]
+        vs = v[0:reader.n_latitudes - 1, 0:reader.n_longitudes - 1]
 
-    us = u[level, 0:nlon - 1, 0:nlat - 1]
-    vs = v[level, 0:nlon - 1, 0:nlat - 1]
-    ust = np.transpose(us)
-    vst = np.transpose(vs)
+    mod = pow((pow(us, 2) + pow(vs, 2)), .5)
 
-    mod = pow((pow(ust, 2) + pow(vst, 2)), .5)
+    reader.close()
 
-    f.close()
-
-    drawcurrents(nx, ny, scale, resolution, level, time, lats, lons, ust, vst, mod, file_out, title, style, limits)
+    drawcurrents(reader.coordinates_rank, nx, ny, scale, resolution, level, time, lats, lons, us, vs, mod, file_out, title, style, boundary_box)
 
 
 if __name__ == '__main__':
