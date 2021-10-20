@@ -1,8 +1,8 @@
 import sys
 from abc import ABC, abstractmethod
-from reader import Reader
-from reader_HDF import ReaderHDF
-from reader_NetCDF import ReaderNetCDF
+from .reader import Reader
+from .reader_HDF import ReaderHDF
+from .reader_NetCDF import ReaderNetCDF
 
 
 class ReaderFactory(ABC):

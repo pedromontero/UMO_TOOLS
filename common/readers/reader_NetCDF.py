@@ -1,7 +1,7 @@
 
 from datetime import datetime
 import netCDF4
-from reader import Reader
+from .reader import Reader
 
 
 class ReaderNetCDF(Reader):

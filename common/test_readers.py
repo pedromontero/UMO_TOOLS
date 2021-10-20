@@ -1,18 +1,17 @@
-from reader_HDF import ReaderHDF
-from reader_NetCDF import ReaderNetCDF
-from reader_factory import ReaderFactory, read_factory
+
+from readers.reader_factory import  read_factory
 
 
 def main():
 
-    factory = read_factory('../../datos/drawmap/MOHID_Hydrodynamic_Vigo_20180711_0000.hdf5')
+    factory = read_factory('../datos/drawmap/MOHID_Hydrodynamic_Vigo_20180711_0000.hdf5')
     reader = factory.get_reader()
     print(reader.longitudes)
     print(reader.latitudes)
     print(reader.get_date(1))
     print(reader.get_date(10))
 
-    factory = read_factory('../../datos/drawmap/wrf_arw_det1km_history_d05_20180711_0000.nc4')
+    factory = read_factory('../datos/drawmap/wrf_arw_det1km_history_d05_20180711_0000.nc4')
     reader = factory.get_reader()
 
     print(reader.latitudes)
