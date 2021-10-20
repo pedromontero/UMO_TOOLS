@@ -25,11 +25,10 @@ import urllib.request
 
 class PathIn:
 
-    file_type = {'hydro',}
+    file_type = {'hydro', 'hydro_hist'}
     prefix: str
     sufix: str
 
-    prefix
 
 
 def main():
