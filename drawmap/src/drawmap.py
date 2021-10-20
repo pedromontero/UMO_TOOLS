@@ -18,12 +18,28 @@ drawmap.py
 
 """
 
-from common import read_input
-from common.readers import reader_HDF
-from common.readers import reader_NetCDF
-from common.boundarybox import BoundaryBox
 
+from common.readers.reader_factory import read_factory
+from common import read_input
+from common.boundarybox import BoundaryBox
 from drawcurrents import drawcurrents
+
+
+def read_inputs(input_file):
+    """Read keywords for options"""
+    input_keys = ['path_in',
+                  'file_in',
+                  'file_out',
+                  'nx',
+                  'ny',
+                  'resolution',
+                  'scale',
+                  'n_time',
+                  'n_level',
+                  'title',
+                  'style',
+                  'limits']
+    return read_input(input_file, input_keys)
 
 
 def main():
@@ -41,20 +57,7 @@ def main():
     print("________________________________________\n")
 
     # Read input file
-    input_file = 'drawmap.json'
-    input_keys = ['path_in',
-                  'file_in',
-                  'file_out',
-                  'nx',
-                  'ny',
-                  'resolution',
-                  'scale',
-                  'n_time',
-                  'n_level',
-                  'title',
-                  'style',
-                  'limits']
-    inputs = read_input(input_file, input_keys)
+    inputs = read_inputs('drawmap.json')
 
     file_path = inputs['path_in']
     file_in = inputs['file_in']
@@ -77,14 +80,8 @@ def main():
 
     print('Opening: {0}'.format(file_name))
 
-    extension = file_in.split('.')[1]
-    hdf = (extension == 'hdf' or extension == 'hdf5')
-    ncdf = (extension == 'nc' or extension == 'nc4')
-
-    if hdf:
-        reader = reader_HDF.ReaderHDF(file_name)
-    elif ncdf:
-        reader = reader_NetCDF.ReaderNetCDF(file_name)
+    factory = read_factory(file_name)
+    reader = factory.get_reader()
 
     data = reader.get_date(time)
     data_str = data.strftime("%Y-%m-%d %H:%M UTC")
