@@ -40,28 +40,41 @@ def main():
     name_grid = 'AROUSA'
     date_ini = datetime.date(2017, 3, 30)
     days = 0
+    path_out = 'datos/download_models'
     # end input
 
-    date_fin = date_ini + datetime.timedelta(days=days)
-    dates = [date_ini + datetime.timedelta(days=d) for d in range((date_fin - date_ini).days + 1)]
+    dates = get_dates(date_ini, days)
+    path_out = get_path_out(path_out)
+    download_by_dates(type_url, name_grid, dates,  path_out)
 
-    os.chdir(r'.\..')
-    root = os.getcwd()
-    path_in = os.path.join(root, 'datos/download_models')
+    print('End')
 
+
+def download_by_dates(type_url, name_grid, dates,  path_out):
     for n, date in enumerate(dates):
 
         url = Url()
-        ffile_in = os.path.join(path_in, url.get_file(type_url, name_grid, date))
-        print(ffile_in)
-        if os.path.exists(ffile_in):
-            print('xa atopei o ficheiro', ffile_in)
+        full_file_out = os.path.join(path_out, url.get_file(type_url, name_grid, date))
+        if os.path.exists(full_file_out):
+            print('xa atopei o ficheiro', full_file_out)
         else:
             url_grid = url.get_url(type_url, name_grid, date)
-            print('Voy baixar {0} a {1}'.format(url_grid, ffile_in))
-            urllib.request.urlretrieve(url_grid, ffile_in)
+            print('Voy baixar {0} a {1}'.format(url_grid, full_file_out))
+            urllib.request.urlretrieve(url_grid, full_file_out)
 
-    print('End')
+
+def get_path_out(path_out):
+    os.chdir(r'.\..')
+    root = os.getcwd()
+    path_out = os.path.join(root, path_out)
+    return path_out
+
+
+def get_dates(date_ini, days):
+    """create a list of dates since date_ini and days"""
+    date_fin = date_ini + datetime.timedelta(days=days)
+    dates = [date_ini + datetime.timedelta(days=d) for d in range((date_fin - date_ini).days + 1)]
+    return dates
 
 
 class Url:
@@ -98,6 +111,6 @@ class Url:
            f'MOHID_{self.GRID[name_grid].capital_grid}_%Y%m%d_0000.nc4'}
         return date.strftime(file[type_url])
 
-if __name__ == '__main__':
 
+if __name__ == '__main__':
    main()
