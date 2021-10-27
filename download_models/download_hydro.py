@@ -20,9 +20,11 @@ yyyymmdd INICIAIS MUDANZA
 """
 
 import os
-import datetime
+from datetime import datetime, timedelta
 import urllib.request
 from collections import namedtuple
+
+from common import read_input
 
 
 def main():
@@ -36,12 +38,17 @@ def main():
 
     """
     # input
-    type_url = 'hydro_hist'
-    name_grid = 'AROUSA'
-    date_ini = datetime.date(2017, 3, 30)
-    days = 0
-    path_out = 'datos/download_models'
+    input_keys = ['type_url', 'name_grid', 'date_ini', 'days', 'path_out']
+    inputs = read_input('download_hydro.json', input_keys)
+
+    type_url = inputs['type_url']
+    name_grid = inputs['name_grid']
+    date_ini = inputs['date_ini']
+    days = inputs['days']
+    path_out = inputs['path_out']
     # end input
+
+    date_ini = datetime.strptime(date_ini, '%Y-%m-%d')
 
     dates = get_dates(date_ini, days)
     path_out = get_path_out(path_out)
@@ -72,8 +79,8 @@ def get_path_out(path_out):
 
 def get_dates(date_ini, days):
     """create a list of dates since date_ini and days"""
-    date_fin = date_ini + datetime.timedelta(days=days)
-    dates = [date_ini + datetime.timedelta(days=d) for d in range((date_fin - date_ini).days + 1)]
+    date_fin = date_ini + timedelta(days=days)
+    dates = [date_ini + timedelta(days=d) for d in range((date_fin - date_ini).days + 1)]
     return dates
 
 
