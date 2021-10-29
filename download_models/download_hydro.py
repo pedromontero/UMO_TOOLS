@@ -49,7 +49,7 @@ def main():
     # end input
 
     date_ini = datetime.strptime(date_ini, '%Y-%m-%d')
-
+    date_ini = date_ini + timedelta(-1) if type_url == 'hydro' or type_url == 'hydro_hist' else 0
     dates = get_dates(date_ini, days)
     path_out = get_path_out(path_out)
     download_by_dates(type_url, name_grid, dates,  path_out)
