@@ -1,7 +1,7 @@
 {
   "type_url": "hydro_hist",
   "name_grid":  "VIGO",
-  "date_ini":  "2018-06-06",
+  "date_ini":  "2018-06-12",
   "days":  0,
   "path_out": "datos/download_models"
 }

@@ -27,7 +27,7 @@ from collections import namedtuple
 from common import read_input
 
 
-def main():
+def main() -> None:
     """
     Main program.
 
@@ -57,9 +57,9 @@ def main():
     print('End')
 
 
-def download_by_dates(type_url, name_grid, dates,  path_out):
+def download_by_dates(type_url, name_grid, dates,  path_out) -> None:
+    """ """
     for n, date in enumerate(dates):
-
         url = Url()
         full_file_out = os.path.join(path_out, url.get_file(type_url, name_grid, date))
         if os.path.exists(full_file_out):
@@ -70,14 +70,14 @@ def download_by_dates(type_url, name_grid, dates,  path_out):
             urllib.request.urlretrieve(url_grid, full_file_out)
 
 
-def get_path_out(path_out):
+def get_path_out(path_out) -> str:
     os.chdir(r'.\..')
     root = os.getcwd()
     path_out = os.path.join(root, path_out)
     return path_out
 
 
-def get_dates(date_ini, days):
+def get_dates(date_ini, days) -> list:
     """create a list of dates since date_ini and days"""
     date_fin = date_ini + timedelta(days=days)
     dates = [date_ini + timedelta(days=d) for d in range((date_fin - date_ini).days + 1)]
@@ -97,7 +97,7 @@ class Url:
                      'PORTOLANGOSTEIRA': Grid('porto_Langosteira', 'LangosteiraP', 'portolangosteira'),
                      'VIGO': Grid('vigo_pontevedra', 'Vigo', 'vigo')}
 
-    def get_url(self, type_url,name_grid, date):
+    def get_url(self, type_url, name_grid, date):
 
         grid = self.GRID[name_grid]
         URL = {'hydro_raw':
@@ -108,7 +108,7 @@ class Url:
            f'http://mandeo.meteogalicia.es/thredds/fileServer/mohid_{grid.grid_mohid}/files/%Y%m%d/'}
         return date.strftime(URL[type_url])+self.get_file(type_url, name_grid, date)
 
-    def get_file(self, type_url,name_grid, date):
+    def get_file(self, type_url, name_grid, date):
 
         file = {'hydro_raw':
            f'MOHID_Hydrodynamic_{self.GRID[name_grid].capital_grid}_%Y%m%d_0000.hdf5',
