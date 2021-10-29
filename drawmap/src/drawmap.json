@@ -1,16 +1,16 @@
 {
     "path_in": "..\\..\\datos\\drawmap",
-    "file_in": "MOHID_Hydrodynamic_Vigo_20180611_0000.hdf5",
-    "file_out": "Hydrodynamic_Vigo_Sup",
-    "nx": 2,
-    "ny": 2,
-    "u": "eastward_velocity",
-    "v": "northward_velocity",
-    "resolution": "f",
-    "scale":  5,
-    "n_time": 1,
+    "file_in": "wrf_arw_det1km_history_d05_20180609_0000.nc4",
+    "file_out": "wind_Vigo",
+    "nx": 1,
+    "ny": 1,
+    "u": "eastward_wind",
+    "v": "northward_wind",
+    "resolution": "h",
+    "scale":  200,
+    "n_time": 23,
     "n_level": 26,
-    "title": "surface current:",
-    "style": "cvector",
-    "limits": [42.10,42.36,-9,-8.56]
+    "title": "surface wind:",
+    "style": "windbarbs",
+    "limits": [42.15,42.3,-8.9,-8.65]
 }
