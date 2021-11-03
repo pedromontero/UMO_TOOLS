@@ -129,7 +129,7 @@ for key, value in dtypes.items():
         _FillValues[key] = np.iinfo(dtypes[key]).min+1
 
 
-class Radial():
+class Radial:
 
     """
     Clase de abstracción para la lectura y procesamiento de ficheros radiales (.ruv)
@@ -432,7 +432,7 @@ class Radial():
                 self.variables[variable].encoding["_FillValue"  ] = _FillValues[variable]
 
 
-    def to_netcdf(self, fichero):
+    def to_netcdf(self, file_out, fichero):
 
         radar = re.findall("[A-Z]{4}", fichero.split('/')[-1])[0]
         fecha = datetime.strptime('%s%s%s%s' % tuple(re.findall("\d+", fichero.split('/')[-1])),'%Y%m%d%H%M' ) 
@@ -443,7 +443,7 @@ class Radial():
         self.variables['crs'] = xr.DataArray(np.int16(0),)
 
         # Datos SDN:
-        SDN_EDMO_CODEs = {'PRIO' : 4841, 'SILL' : 2751, 'VILA' : 4841}
+        SDN_EDMO_CODEs = {'PRIO' : 4841, 'SILL' : 2751, 'VILA' : 4841, 'FIST': 2751}
 
         self.variables['SDN_EDMO_CODE'] = xr.DataArray(np.int16([[SDN_EDMO_CODEs[radar]]]), dims   = {'TIME' : 1, 'MAXINST' : 1})
 
@@ -591,7 +591,8 @@ class Radial():
             dataset[var].attrs['valid_max'] = np.float_(atributos[var]['valid_max']).astype(conversor)
 
         # Escribimos el netCDF:
-        dataset.reset_coords(drop=False).to_netcdf('HFR-Galicia-%s_%s.nc' % (radar, fecha.strftime('%Y_%m_%d_%H%M'))) 
+        file_out = os.path.join(path_out, 'HFR-Galicia-%s_%s.nc')
+        dataset.reset_coords(drop=False).to_netcdf(file_out % (radar, fecha.strftime('%Y_%m_%d_%H%M')))
 
     def __repr__(self):
     
@@ -735,13 +736,16 @@ def VART_QC(ficheros):
     datasets[1].to_netcdf('%s_new.nc' % ficheros[1].split('.')[0])
 
 
-def ruv2nc(fichero):
+def ruv2nc(path_in, path_out, fichero):
+
+   # file_in= os.path.join(path_in, fichero)
+    file_in = path_in + '/' + fichero
 
     radar = re.findall("[A-Z]{4}", fichero.split('/')[-1])[0]
     fecha = datetime.strptime('%s%s%s%s' % tuple(re.findall("\d+", fichero.split('/')[-1])), '%Y%m%d%H%M')
 
     # Creamos el objeto radial para leer el fichero:
-    radial = Radial(fichero)
+    radial = Radial(file_in)
 
     # Creamos la malla donde queremos inscribir la tabla:
     grd = Grid(radial)
@@ -753,9 +757,10 @@ def ruv2nc(fichero):
     radial.QC_control()
 
     # Generamos el fichero NetCDF:
-    radial.to_netcdf(fichero)
+    radial.to_netcdf(path_out, fichero)
+    file_out = os.path.join(path_out, 'HFR-Galicia-%s_%s.nc')
 
-    ficheros = ['HFR-Galicia-%s_%s.nc' % (radar, (fecha + timedelta(hours=-i)).strftime('%Y_%m_%d_%H%M')) for i in
+    ficheros = [file_out % (radar, (fecha + timedelta(hours=-i)).strftime('%Y_%m_%d_%H%M')) for i in
                 range(3)]
     print(ficheros)
     condiciones = [os.path.isfile(fichero) for fichero in ficheros]
@@ -769,8 +774,10 @@ def ruv2nc(fichero):
 
 
 if __name__ == '__main__':
-    file = r'data/RDLm_VILA_2021_04_26_0800.ruv'
-    ruv2nc(file)
+    file = r'RDLm_FIST_2021_10_24_0800.ruv'
+    path_in = r'../datos/radar/radials'
+    path_out = r'../datos/radar/nc'
+    ruv2nc(path_in, path_out, file)
 
 
 
