@@ -167,8 +167,8 @@ class Radial:
         self.TimeStamp                = datetime.strptime(metadatos['TimeStamp'],' %Y %m %d %H %M %S')
 
         # Líneas inicial y final de las tablas:
-        starts  = np.arange(len(contenido))[['TableStart' in linea for linea in contenido]]
-        ends    = np.arange(len(contenido))[['TableEnd' in linea for linea in contenido]]
+        starts = np.arange(len(contenido))[['TableStart' in linea for linea in contenido]]
+        ends = np.arange(len(contenido))[['TableEnd' in linea for linea in contenido]]
         lengths = ends - starts - 1
 
         # Linea que contiene el header:
@@ -432,7 +432,7 @@ class Radial:
                 self.variables[variable].encoding["_FillValue"  ] = _FillValues[variable]
 
 
-    def to_netcdf(self, file_out, fichero):
+    def to_netcdf(self, path_out, fichero):
 
         radar = re.findall("[A-Z]{4}", fichero.split('/')[-1])[0]
         fecha = datetime.strptime('%s%s%s%s' % tuple(re.findall("\d+", fichero.split('/')[-1])),'%Y%m%d%H%M' ) 

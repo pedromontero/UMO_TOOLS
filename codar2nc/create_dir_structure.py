@@ -27,8 +27,8 @@ class FolderTree:
         return os.path.join(station_folder, year_folder, month_folder, day_folder)
 
     def make_radial_folder(self, station: str, day: datetime) -> None:
-        folder_to_create = os.path.join(self.root, self.get_radial_folder(station, day))
-        if not os.path.isdir(folder_to_create):
+        if not self.exist_folder(station, day):
+            folder_to_create = os.path.join(self.root, self.get_radial_folder(station, day))
             os.makedirs(folder_to_create)
 
     def make_radial_folders_by_system(self, day):
@@ -45,6 +45,10 @@ class FolderTree:
         folder = self.get_radial_folder(station, day)
         file = get_radial_name(station, day)
         return os.path.join(folder, file)
+
+    def exist_folder(self, station: str, day: datetime) -> bool:
+        return os.path.isdir(self.get_radial_folder(station, day))
+
 
 
 def main():
