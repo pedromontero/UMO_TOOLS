@@ -12,8 +12,8 @@ class ReaderHDF(Reader):
         'eastward_velocity': '/Results/velocity U/velocity U_'
     }
 
-    def open(self, file):
-        return h5py.File(file)
+    def open(self):
+        return h5py.File(self.file)
 
     def close(self):
         self.dataset.close()

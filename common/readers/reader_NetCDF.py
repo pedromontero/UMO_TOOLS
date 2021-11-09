@@ -6,8 +6,8 @@ from .reader import Reader
 
 class ReaderNetCDF(Reader):
 
-    def open(self, file):
-        dataset = netCDF4.Dataset(file)
+    def open(self):
+        dataset = netCDF4.Dataset(self.file)
         self.variables = dataset.variables
         return dataset
 
