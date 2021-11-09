@@ -47,7 +47,7 @@ class FolderTree:
         return os.path.join(folder, file)
 
     def exist_folder(self, station: str, day: datetime) -> bool:
-        return os.path.isdir(self.get_radial_folder(station, day))
+        return os.path.isdir(os.path.join(self.root, self.get_radial_folder(station, day)))
 
 
 
