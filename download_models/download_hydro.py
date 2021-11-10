@@ -27,7 +27,7 @@ from collections import namedtuple
 from common import read_input
 
 
-def main() -> None:
+def main(inputs) -> None:
     """
     Main program.
 
@@ -37,12 +37,7 @@ def main() -> None:
     hist_log is a logical var indicating if the thredds folder is historical
 
     """
-    # input
-    input_keys = ['type_url', 'name_grid', 'date_ini', 'days', 'path_out']
-    inputs = read_input('download_hydro.json', input_keys)
 
-
-    # end input
 
     download_app = DownloadModels(inputs)
     download_app.download_by_dates()
@@ -125,4 +120,8 @@ class Url:
 
 
 if __name__ == '__main__':
-   main()
+    # input
+    input_keys = ['type_url', 'name_grid', 'date_ini', 'days', 'path_out']
+    inputs = read_input('download_hydro.json', input_keys)
+    # end input
+    main(inputs)
