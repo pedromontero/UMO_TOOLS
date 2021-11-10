@@ -41,47 +41,52 @@ def main() -> None:
     input_keys = ['type_url', 'name_grid', 'date_ini', 'days', 'path_out']
     inputs = read_input('download_hydro.json', input_keys)
 
-    type_url = inputs['type_url']
-    name_grid = inputs['name_grid']
-    date_ini = inputs['date_ini']
-    days = inputs['days']
-    path_out = inputs['path_out']
+
     # end input
 
-    date_ini = datetime.strptime(date_ini, '%Y-%m-%d')
-    date_ini = date_ini + timedelta(-1) if type_url == 'hydro' or type_url == 'hydro_hist' else 0
-    dates = get_dates(date_ini, days)
-    path_out = get_path_out(path_out)
-    download_by_dates(type_url, name_grid, dates,  path_out)
+    download_app = DownloadModels(inputs)
+    download_app.download_by_dates()
 
     print('End')
 
+class DownloadModels:
 
-def download_by_dates(type_url, name_grid, dates,  path_out) -> None:
-    """ """
-    for n, date in enumerate(dates):
-        url = Url()
-        full_file_out = os.path.join(path_out, url.get_file(type_url, name_grid, date))
-        if os.path.exists(full_file_out):
-            print('xa atopei o ficheiro', full_file_out)
-        else:
-            url_grid = url.get_url(type_url, name_grid, date)
-            print('Voy baixar {0} a {1}'.format(url_grid, full_file_out))
-            urllib.request.urlretrieve(url_grid, full_file_out)
+    def __init__(self, inputs):
 
+        self.type_url = inputs['type_url']
+        self.name_grid = inputs['name_grid']
+        self.date_ini = inputs['date_ini']
+        self.days = inputs['days']
+        self.path_out = inputs['path_out']
+        self.date_ini = self.get_data_ini()
+        self.path_out = self.get_path_out()
 
-def get_path_out(path_out) -> str:
-    os.chdir(r'.\..')
-    root = os.getcwd()
-    path_out = os.path.join(root, path_out)
-    return path_out
+    def get_data_ini(self):
+        return datetime.strptime(self.date_ini, '%Y-%m-%d') + timedelta(-1)\
+            if self.type_url == 'hydro' or self.type_url == 'hydro_hist' else 0
 
+    def download_by_dates(self) -> None:
+        """ """
+        for n, date in enumerate(self.get_dates()):
+            url = Url()
+            full_file_out = os.path.join(self.path_out, url.get_file(self.type_url, self.name_grid, date))
+            if os.path.exists(full_file_out):
+                print('xa atopei o ficheiro', full_file_out)
+            else:
+                url_grid = url.get_url(self.type_url, self.name_grid, date)
+                print('Voy baixar {0} a {1}'.format(url_grid, full_file_out))
+                urllib.request.urlretrieve(url_grid, full_file_out)
 
-def get_dates(date_ini, days) -> list:
-    """create a list of dates since date_ini and days"""
-    date_fin = date_ini + timedelta(days=days)
-    dates = [date_ini + timedelta(days=d) for d in range((date_fin - date_ini).days + 1)]
-    return dates
+    def get_path_out(self) -> str:
+        os.chdir(r'.\..')
+        root = os.getcwd()
+        return os.path.join(root, self.path_out)
+
+    def get_dates(self) -> list:
+        """create a list of dates since date_ini and days"""
+        date_fin = self.date_ini + timedelta(days=self.days)
+        dates = [self.date_ini + timedelta(days=d) for d in range((date_fin - self.date_ini).days + 1)]
+        return dates
 
 
 class Url:

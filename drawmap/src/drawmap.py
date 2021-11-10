@@ -62,8 +62,12 @@ def main():
     inputs = read_inputs('drawmap.json')
     draw_map = DrawMap(inputs)
     draw_map.read_head()
-    draw_map.reader_uv()
-    draw_map.draw()
+
+    for n in range(0, 24):
+        draw_map.create_title(n)
+        draw_map.reader_uv_by_time(n)
+        print(draw_map.title_full)
+        draw_map.draw()
 
 
 
@@ -106,11 +110,6 @@ class DrawMap:
         self.reader = factory.get_reader()
 
         with self.reader.open():
-            data = self.reader.get_date(self.time)
-            data_str = data.strftime("%Y-%m-%d %H:%M UTC")
-            data_comp = data.strftime("%Y%m%d%H%M")
-            self.title = self.title + " " + data_str
-            self.file_out = self.file_out + '_' + data_comp + '.png'
 
             lat = self.reader.latitudes
             lon = self.reader.longitudes
@@ -122,14 +121,20 @@ class DrawMap:
                 self.lats = lat[0:self.reader.n_longitudes - 1, 0:self.reader.n_latitudes - 1]
                 self.lons = lon[0:self.reader.n_longitudes - 1, 0:self.reader.n_latitudes - 1]
 
+    def create_title(self, n_time):
+        with self.reader.open():
+            data = self.reader.get_date(n_time)
+            print(data)
+            data_str = data.strftime("%Y-%m-%d %H:%M UTC")
+            data_comp = data.strftime("%Y%m%d%H%M")
+            self.title_full = self.title + " " + data_str
+            self.file_out_full = self.file_out + '_' + data_comp + '.png'
 
-    def reader_uv(self):
+    def reader_uv_by_time(self, n_time):
 
         with self.reader.open():
-            u = self.reader.get_variable(self.u_name, self.time)
-            v = self.reader.get_variable(self.v_name, self.time)
-
-
+            u = self.reader.get_variable(self.u_name, n_time)
+            v = self.reader.get_variable(self.v_name, n_time)
 
             if len(u.shape) == 3:
                 self.us = u[self.level, 0:self.reader.n_latitudes - 1, 0:self.reader.n_longitudes - 1]
@@ -141,11 +146,14 @@ class DrawMap:
             self.mod = pow((pow(self.us, 2) + pow(self.vs, 2)), .5)
 
 
+    def reader_uv(self):
+        self.reader_uv_by_time(self.time)
+
     def draw(self):
 
         drawcurrents(self.reader.coordinates_rank, self.nx, self.ny, self.scale, self.resolution,
                      self.level, self.time, self.lats, self.lons, self.us, self.vs, self.mod,
-                     self.file_out, self.title, self.style, self.boundary_box)
+                     self.file_out_full, self.title_full, self.style, self.boundary_box)
 
 
 if __name__ == '__main__':
