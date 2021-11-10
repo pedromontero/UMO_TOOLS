@@ -27,7 +27,7 @@ from collections import namedtuple
 from common import read_input
 
 
-def main(inputs) -> None:
+def main(input_args) -> None:
     """
     Main program.
 
@@ -38,21 +38,21 @@ def main(inputs) -> None:
 
     """
 
-
-    download_app = DownloadModels(inputs)
+    download_app = DownloadModels(input_args)
     download_app.download_by_dates()
 
     print('End')
 
+
 class DownloadModels:
 
-    def __init__(self, inputs):
+    def __init__(self, input_var):
 
-        self.type_url = inputs['type_url']
-        self.name_grid = inputs['name_grid']
-        self.date_ini = inputs['date_ini']
-        self.days = inputs['days']
-        self.path_out = inputs['path_out']
+        self.type_url = input_var['type_url']
+        self.name_grid = input_var['name_grid']
+        self.date_ini = input_var['date_ini']
+        self.days = input_var['days']
+        self.path_out = input_var['path_out']
         self.date_ini = self.get_data_ini()
         self.path_out = self.get_path_out()
 
@@ -100,13 +100,13 @@ class Url:
     def get_url(self, type_url, name_grid, date):
 
         grid = self.GRID[name_grid]
-        URL = {'hydro_raw':
-           f'http://mandeo.meteogalicia.es/thredds/fileServer/modelos/mohid/rawoutput/{grid.grid}/%Y%m%d/',
-           'hydro_hist':
-           f'http://mandeo.meteogalicia.es/thredds/fileServer/modelos/mohid/history/{grid.grid}/',
-           'hydro_nc':
-           f'http://mandeo.meteogalicia.es/thredds/fileServer/mohid_{grid.grid_mohid}/files/%Y%m%d/'}
-        return date.strftime(URL[type_url])+self.get_file(type_url, name_grid, date)
+        url = {'hydro_raw':
+               f'http://mandeo.meteogalicia.es/thredds/fileServer/modelos/mohid/rawoutput/{grid.grid}/%Y%m%d/',
+               'hydro_hist':
+               f'http://mandeo.meteogalicia.es/thredds/fileServer/modelos/mohid/history/{grid.grid}/',
+               'hydro_nc':
+               f'http://mandeo.meteogalicia.es/thredds/fileServer/mohid_{grid.grid_mohid}/files/%Y%m%d/'}
+        return date.strftime(url[type_url])+self.get_file(type_url, name_grid, date)
 
     def get_file(self, type_url, name_grid, date):
 
