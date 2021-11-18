@@ -68,7 +68,7 @@ def draw_map_24(inputs):
     draw_map = DrawMap(inputs)
     draw_map.read_head()
 
-    for n in range(0, 24):
+    for n in range(draw_map.reader.ini_ntime, 24):
         draw_map.create_title(n)
         draw_map.reader_uv_by_time(n)
         print(draw_map.title_full)
@@ -128,7 +128,6 @@ class DrawMap:
     def create_title(self, n_time):
         with self.reader.open():
             data = self.reader.get_date(n_time)
-            print(data)
             data_str = data.strftime("%Y-%m-%d %H:%M UTC")
             data_comp = data.strftime("%Y%m%d%H%M")
             self.title_full = self.title + " " + data_str
