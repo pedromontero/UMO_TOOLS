@@ -60,6 +60,11 @@ def main():
 
     # Read input file
     inputs = read_inputs('drawmap.json')
+    draw_map_24(inputs)
+
+
+def draw_map_24(inputs):
+    """draw 24 maps of a day"""
     draw_map = DrawMap(inputs)
     draw_map.read_head()
 
@@ -70,19 +75,18 @@ def main():
         draw_map.draw()
 
 
-
-
 class DrawMap:
 
     """Class to draw a map with all options"""
 
     def __init__(self, inputs):
 
-        self.file_path = inputs['path_in']
+        self.file_path_in = inputs['path_in']
+        self.file_path_out = inputs['path_out']
         self.file_in = inputs['file_in']
-        self.file_name = os.path.join(self.file_path, self.file_in)
+        self.file_name = os.path.join(self.file_path_in, self.file_in)
         self.file_hdf_out = inputs['file_out']
-        self.file_out = os.path.join(self.file_path, self.file_hdf_out)
+        self.file_out = os.path.join(self.file_path_out, self.file_hdf_out)
 
         self.nx = inputs['nx']
         self.ny = inputs['ny']
