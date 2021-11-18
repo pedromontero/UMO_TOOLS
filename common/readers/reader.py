@@ -31,6 +31,7 @@ class Reader(ABC):
         self.longitudes = self.get_longitudes()
         self.latitudes = self.get_latitudes()
         self.coordinates_rank = self.get_rank(self.longitudes)
+        self.ini_ntime = self.get_ini_ntime()
         self.close()
 
     @abstractmethod
@@ -57,9 +58,15 @@ class Reader(ABC):
     def get_date(self, n_time):
         pass
 
+    @abstractmethod
+    def get_ini_ntime(self):
+        pass
+
     @staticmethod
     def get_rank(array) -> int:
         """ Number of dimensions of an array"""
         return len(array.shape)
+
+
 
 

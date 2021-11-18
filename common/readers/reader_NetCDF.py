@@ -53,4 +53,5 @@ class ReaderNetCDF(Reader):
                     if nome_atributo == var_name:
                         return self.variables[var]
 
-
+    def get_ini_ntime(self):
+        return 0
