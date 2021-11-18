@@ -54,6 +54,7 @@ class DownloadModels:
         self.days = input_var['days']
         self.path_out = input_var['path_out']
         self.date_ini = self.get_data_ini()
+        self.url = Url()
 
     def get_data_ini(self):
         return datetime.strptime(self.date_ini, '%Y-%m-%d') + timedelta(-1)\
@@ -62,15 +63,13 @@ class DownloadModels:
     def download_by_dates(self) -> None:
         """ """
         for n, date in enumerate(self.get_dates()):
-            url = Url()
-            full_file_out = os.path.join(self.path_out, url.get_file(self.type_url, self.name_grid, date))
+            full_file_out = os.path.join(self.path_out, self.get_filename(date))
             if os.path.exists(full_file_out):
                 print('xa atopei o ficheiro', full_file_out)
             else:
-                url_grid = url.get_url(self.type_url, self.name_grid, date)
+                url_grid = self.url.get_url(self.type_url, self.name_grid, date)
                 print('Voy baixar {0} a {1}'.format(url_grid, full_file_out))
                 urllib.request.urlretrieve(url_grid, full_file_out)
-
 
 
     def get_dates(self) -> list:
@@ -78,6 +77,10 @@ class DownloadModels:
         date_fin = self.date_ini + timedelta(days=self.days)
         dates = [self.date_ini + timedelta(days=d) for d in range((date_fin - self.date_ini).days + 1)]
         return dates
+
+    def get_filename(self,date):
+        return self.url.get_file(self.type_url, self.name_grid, date)
+
 
 
 class Url:

@@ -76,5 +76,6 @@ def drawcurrents(coordinates_rank, nx, ny, scale, resolution,
     fig.savefig(file_out, dpi=100, facecolor='w', edgecolor='w', format='png',
                 transparent=False,  bbox_inches='tight', pad_inches=0.1)
     plt.clf()
+    plt.close(fig)
 
     return

@@ -23,7 +23,7 @@ import os
 from common.readers.reader_factory import read_factory
 from common import read_input
 from common.boundarybox import BoundaryBox
-from drawcurrents import drawcurrents
+from .drawcurrents import drawcurrents
 
 
 
@@ -31,6 +31,7 @@ def read_inputs(input_file):
     """Read keywords for options"""
     input_keys = ['path_in',
                   'file_in',
+                  'path_out'
                   'file_out',
                   'nx',
                   'ny',
