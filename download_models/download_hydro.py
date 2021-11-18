@@ -54,7 +54,6 @@ class DownloadModels:
         self.days = input_var['days']
         self.path_out = input_var['path_out']
         self.date_ini = self.get_data_ini()
-        self.path_out = self.get_path_out()
 
     def get_data_ini(self):
         return datetime.strptime(self.date_ini, '%Y-%m-%d') + timedelta(-1)\
@@ -72,10 +71,7 @@ class DownloadModels:
                 print('Voy baixar {0} a {1}'.format(url_grid, full_file_out))
                 urllib.request.urlretrieve(url_grid, full_file_out)
 
-    def get_path_out(self) -> str:
-        os.chdir(r'.\..')
-        root = os.getcwd()
-        return os.path.join(root, self.path_out)
+
 
     def get_dates(self) -> list:
         """create a list of dates since date_ini and days"""
