@@ -65,11 +65,11 @@ def main():
 
 
 def draw_map_24(inputs):
-    """draw 24 maps of a day"""
+    """draw 24+1 maps of a day"""
     draw_map = DrawMap(inputs)
     draw_map.read_head()
 
-    for n in range(draw_map.reader.ini_ntime, 24):
+    for n in range(draw_map.reader.ini_ntime, 25+draw_map.reader.ini_ntime):
         draw_map.create_title(n)
         draw_map.reader_uv_by_time(n)
         print(draw_map.title_full)
@@ -105,10 +105,7 @@ class DrawMap:
 
         self.reader = None
 
-
-
     def read_head(self):
-
         print('Opening: {0}'.format(self.file_name))
 
         factory = read_factory(self.file_name)
@@ -148,7 +145,6 @@ class DrawMap:
                 self.vs = v[0:self.reader.n_latitudes - 1, 0:self.reader.n_longitudes - 1]
 
             self.mod = pow((pow(self.us, 2) + pow(self.vs, 2)), .5)
-
 
     def reader_uv(self):
         self.reader_uv_by_time(self.time)
