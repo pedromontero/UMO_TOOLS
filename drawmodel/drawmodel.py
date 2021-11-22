@@ -15,7 +15,7 @@ def draw_model(inputs):
         download_app.download_by_dates()
         print(download_app.get_filename(file_date))
 
-        inputs_draw = drawmap.read_inputs('drawmap.json')
+        inputs_draw = drawmap.read_inputs('drawmap_good.json')
         inputs_draw['file_in'] = download_app.get_filename(file_date)
         date_pieces = date.split("-")
         date_dir = date_pieces[0] + date_pieces[1] + date_pieces[2]
