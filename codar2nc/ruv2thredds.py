@@ -30,7 +30,7 @@ class Ruv2Nc:
             thredds.make_radial_folder(site, day)
             full_file = os.path.join(self.root_folder, thredds.get_full_file_nc(site, day))
             if not check_nc_file(full_file):
-                print(f'---------------- voy a crear {full_file}')
+                print(f'---------------- vou crear {full_file}')
 
                 day_hour_before = day + timedelta(hours=-1)
                 file_previous_hour = os.path.join(self.root_folder,thredds.get_full_file_nc(site, day_hour_before))
@@ -47,8 +47,6 @@ class Ruv2Nc:
                 shutil.rmtree(self.nc_folder)
                 os.makedirs(self.nc_folder)
 
-
-
 def main(data_folder):
     ruv2nc = Ruv2Nc(data_folder)
     thredds = FolderTree(ruv2nc.root_folder)
@@ -57,6 +55,5 @@ def main(data_folder):
 
 if __name__ == '__main__':
     data_folder = r'../datos/radar'
-
 
     main(data_folder)
