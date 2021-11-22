@@ -27,7 +27,7 @@ from collections import namedtuple
 from common import read_input
 
 
-def main() -> None:
+def main(input_args) -> None:
     """
     Main program.
 
@@ -37,51 +37,50 @@ def main() -> None:
     hist_log is a logical var indicating if the thredds folder is historical
 
     """
-    # input
-    input_keys = ['type_url', 'name_grid', 'date_ini', 'days', 'path_out']
-    inputs = read_input('download_hydro.json', input_keys)
 
-    type_url = inputs['type_url']
-    name_grid = inputs['name_grid']
-    date_ini = inputs['date_ini']
-    days = inputs['days']
-    path_out = inputs['path_out']
-    # end input
-
-    date_ini = datetime.strptime(date_ini, '%Y-%m-%d')
-    date_ini = date_ini + timedelta(-1) if type_url == 'hydro' or type_url == 'hydro_hist' else 0
-    dates = get_dates(date_ini, days)
-    path_out = get_path_out(path_out)
-    download_by_dates(type_url, name_grid, dates,  path_out)
+    download_app = DownloadModels(input_args)
+    download_app.download_by_dates()
 
     print('End')
 
 
-def download_by_dates(type_url, name_grid, dates,  path_out) -> None:
-    """ """
-    for n, date in enumerate(dates):
-        url = Url()
-        full_file_out = os.path.join(path_out, url.get_file(type_url, name_grid, date))
-        if os.path.exists(full_file_out):
-            print('xa atopei o ficheiro', full_file_out)
-        else:
-            url_grid = url.get_url(type_url, name_grid, date)
-            print('Voy baixar {0} a {1}'.format(url_grid, full_file_out))
-            urllib.request.urlretrieve(url_grid, full_file_out)
+class DownloadModels:
+
+    def __init__(self, input_var):
+
+        self.type_url = input_var['type_url']
+        self.name_grid = input_var['name_grid']
+        self.date_ini = input_var['date_ini']
+        self.days = input_var['days']
+        self.path_out = input_var['path_out']
+        self.date_ini = self.get_data_ini()
+        self.url = Url()
+
+    def get_data_ini(self):
+        return datetime.strptime(self.date_ini, '%Y-%m-%d') + timedelta(-1)\
+            if self.type_url == 'hydro' or self.type_url == 'hydro_hist' else 0
+
+    def download_by_dates(self) -> None:
+        """ """
+        for n, date in enumerate(self.get_dates()):
+            full_file_out = os.path.join(self.path_out, self.get_filename(date))
+            if os.path.exists(full_file_out):
+                print('xa atopei o ficheiro', full_file_out)
+            else:
+                url_grid = self.url.get_url(self.type_url, self.name_grid, date)
+                print('Voy baixar {0} a {1}'.format(url_grid, full_file_out))
+                urllib.request.urlretrieve(url_grid, full_file_out)
 
 
-def get_path_out(path_out) -> str:
-    os.chdir(r'.\..')
-    root = os.getcwd()
-    path_out = os.path.join(root, path_out)
-    return path_out
+    def get_dates(self) -> list:
+        """create a list of dates since date_ini and days"""
+        date_fin = self.date_ini + timedelta(days=self.days)
+        dates = [self.date_ini + timedelta(days=d) for d in range((date_fin - self.date_ini).days + 1)]
+        return dates
 
+    def get_filename(self,date):
+        return self.url.get_file(self.type_url, self.name_grid, date)
 
-def get_dates(date_ini, days) -> list:
-    """create a list of dates since date_ini and days"""
-    date_fin = date_ini + timedelta(days=days)
-    dates = [date_ini + timedelta(days=d) for d in range((date_fin - date_ini).days + 1)]
-    return dates
 
 
 class Url:
@@ -100,13 +99,13 @@ class Url:
     def get_url(self, type_url, name_grid, date):
 
         grid = self.GRID[name_grid]
-        URL = {'hydro_raw':
-           f'http://mandeo.meteogalicia.es/thredds/fileServer/modelos/mohid/rawoutput/{grid.grid}/%Y%m%d/',
-           'hydro_hist':
-           f'http://mandeo.meteogalicia.es/thredds/fileServer/modelos/mohid/history/{grid.grid}/',
-           'hydro_nc':
-           f'http://mandeo.meteogalicia.es/thredds/fileServer/mohid_{grid.grid_mohid}/files/%Y%m%d/'}
-        return date.strftime(URL[type_url])+self.get_file(type_url, name_grid, date)
+        url = {'hydro_raw':
+               f'http://mandeo.meteogalicia.es/thredds/fileServer/modelos/mohid/rawoutput/{grid.grid}/%Y%m%d/',
+               'hydro_hist':
+               f'http://mandeo.meteogalicia.es/thredds/fileServer/modelos/mohid/history/{grid.grid}/',
+               'hydro_nc':
+               f'http://mandeo.meteogalicia.es/thredds/fileServer/mohid_{grid.grid_mohid}/files/%Y%m%d/'}
+        return date.strftime(url[type_url])+self.get_file(type_url, name_grid, date)
 
     def get_file(self, type_url, name_grid, date):
 
@@ -120,4 +119,8 @@ class Url:
 
 
 if __name__ == '__main__':
-   main()
+    # input
+    input_keys = ['type_url', 'name_grid', 'date_ini', 'days', 'path_out']
+    inputs = read_input('download_hydro.json', input_keys)
+    # end input
+    main(inputs)

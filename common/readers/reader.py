@@ -24,15 +24,18 @@ class Reader(ABC):
     """ Abstract class of Reader object"""
     def __init__(self, file):
         """ Open a file and get longitudes and latitudes and coordinates rank"""
-        self.dataset = self.open(file)
+        self.file = file
+        self.dataset = self.open()
         self.n_longitudes = None
         self.n_latitudes = None
         self.longitudes = self.get_longitudes()
         self.latitudes = self.get_latitudes()
         self.coordinates_rank = self.get_rank(self.longitudes)
+        self.ini_ntime = self.get_ini_ntime()
+        self.close()
 
     @abstractmethod
-    def open(self, file):
+    def open(self):
         pass
 
     @abstractmethod
@@ -55,9 +58,15 @@ class Reader(ABC):
     def get_date(self, n_time):
         pass
 
+    @abstractmethod
+    def get_ini_ntime(self):
+        pass
+
     @staticmethod
     def get_rank(array) -> int:
         """ Number of dimensions of an array"""
         return len(array.shape)
+
+
 
 

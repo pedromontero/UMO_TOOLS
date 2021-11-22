@@ -12,8 +12,9 @@ class ReaderHDF(Reader):
         'eastward_velocity': '/Results/velocity U/velocity U_'
     }
 
-    def open(self, file):
-        return h5py.File(file)
+    def open(self):
+        self.dataset = h5py.File(self.file)
+        return self.dataset
 
     def close(self):
         self.dataset.close()
@@ -40,6 +41,7 @@ class ReaderHDF(Reader):
         return self.dataset['/Time']
 
     def get_date(self, n_time):
+
         date_in = self.dataset['/Time/Time_' + str(n_time).zfill(5)]
         return datetime(year=int(date_in[0]), month=int(date_in[1]), day=int(date_in[2]),
                         hour=int(date_in[3]), minute=int(date_in[4]), second=int(date_in[5]))
@@ -52,6 +54,9 @@ class ReaderHDF(Reader):
         elif len(variable.shape) == 3:
             variable = np.transpose(variable, (0, 2, 1))
         return variable
+
+    def get_ini_ntime(self):
+        return 1
 
 
 

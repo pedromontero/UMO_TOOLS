@@ -1,0 +1,7 @@
+{
+  "type_url": "hydro_hist",
+  "name_grid":  "AROUSA",
+  "dates":  ["2017-03-30","2017-05-25"],
+  "days":  0,
+  "path_out": "../datos/drawmodels/in"
+}

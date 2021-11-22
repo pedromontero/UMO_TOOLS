@@ -18,17 +18,20 @@ drawmap.py
 
 """
 
+import os
 
 from common.readers.reader_factory import read_factory
 from common import read_input
 from common.boundarybox import BoundaryBox
-from drawcurrents import drawcurrents
+from .drawcurrents import drawcurrents
+
 
 
 def read_inputs(input_file):
     """Read keywords for options"""
     input_keys = ['path_in',
                   'file_in',
+                  'path_out'
                   'file_out',
                   'nx',
                   'ny',
@@ -49,7 +52,7 @@ def main():
 
     :return:
     """
-    import os
+
 
     # Start
     print("________________________________________\n")
@@ -58,62 +61,99 @@ def main():
 
     # Read input file
     inputs = read_inputs('drawmap.json')
+    draw_map_24(inputs)
 
-    file_path = inputs['path_in']
-    file_in = inputs['file_in']
-    nx = inputs['nx']
-    ny = inputs['ny']
-    scale = inputs['scale']
-    resolution = inputs['resolution']
-    level = inputs['n_level']
-    time = inputs['n_time']
-    file_hdf_out = inputs['file_out']
-    file_out = os.path.join(file_path, file_hdf_out)
-    title = inputs['title']
-    file_name = os.path.join(file_path, file_in)
-    style = inputs['style']
-    limits = inputs['limits']
-    boundary_box = BoundaryBox(limits[0], limits[1], limits[2], limits[3])
 
-    u_name = inputs['u']
-    v_name = inputs['v']
+def draw_map_24(inputs):
+    """draw 24+1 maps of a day"""
+    draw_map = DrawMap(inputs)
+    draw_map.read_head()
 
-    print('Opening: {0}'.format(file_name))
+    for n in range(draw_map.reader.ini_ntime, 25+draw_map.reader.ini_ntime):
+        draw_map.create_title(n)
+        draw_map.reader_uv_by_time(n)
+        print(draw_map.title_full)
+        draw_map.draw()
 
-    factory = read_factory(file_name)
-    reader = factory.get_reader()
 
-    data = reader.get_date(time)
-    data_str = data.strftime("%Y-%m-%d %H:%M UTC")
-    data_comp = data.strftime("%Y%m%d%H%M")
-    title = title + " " + data_str
-    file_out = file_out + '_' + data_comp + '.png'
+class DrawMap:
 
-    lat = reader.latitudes
-    lon = reader.longitudes
+    """Class to draw a map with all options"""
 
-    u = reader.get_variable(u_name, time)
-    v = reader.get_variable(v_name, time)
+    def __init__(self, inputs):
 
-    if reader.coordinates_rank == 1:
-        lats = lat[0:reader.n_latitudes - 1]
-        lons = lon[0:reader.n_longitudes - 1]
-    elif reader.coordinates_rank == 2:
-        lats = lat[0:reader.n_longitudes - 1, 0:reader.n_latitudes - 1]
-        lons = lon[0:reader.n_longitudes - 1, 0:reader.n_latitudes - 1]
+        self.file_path_in = inputs['path_in']
+        self.file_path_out = inputs['path_out']
+        self.file_in = inputs['file_in']
+        self.file_name = os.path.join(self.file_path_in, self.file_in)
+        self.file_hdf_out = inputs['file_out']
+        self.file_out = os.path.join(self.file_path_out, self.file_hdf_out)
 
-    if len(u.shape) == 3:
-        us = u[level, 0:reader.n_latitudes - 1, 0:reader.n_longitudes - 1]
-        vs = v[level, 0:reader.n_latitudes - 1, 0:reader.n_longitudes - 1]
-    elif len(u.shape) == 2:
-        us = u[0:reader.n_latitudes - 1, 0:reader.n_longitudes - 1]
-        vs = v[0:reader.n_latitudes - 1, 0:reader.n_longitudes - 1]
+        self.nx = inputs['nx']
+        self.ny = inputs['ny']
+        self.scale = inputs['scale']
+        self.resolution = inputs['resolution']
+        self.style = inputs['style']
+        self.title = inputs['title']
 
-    mod = pow((pow(us, 2) + pow(vs, 2)), .5)
+        self.level = inputs['n_level']
+        self.time = inputs['n_time']
+        limits = inputs['limits']
+        self.boundary_box = BoundaryBox(limits[0], limits[1], limits[2], limits[3])
+        self.u_name = inputs['u']
+        self.v_name = inputs['v']
 
-    reader.close()
+        self.reader = None
 
-    drawcurrents(reader.coordinates_rank, nx, ny, scale, resolution, level, time, lats, lons, us, vs, mod, file_out, title, style, boundary_box)
+    def read_head(self):
+        print('Opening: {0}'.format(self.file_name))
+
+        factory = read_factory(self.file_name)
+        self.reader = factory.get_reader()
+
+        with self.reader.open():
+
+            lat = self.reader.latitudes
+            lon = self.reader.longitudes
+
+            if self.reader.coordinates_rank == 1:
+                self.lats = lat[0:self.reader.n_latitudes - 1]
+                self.lons = lon[0:self.reader.n_longitudes - 1]
+            elif self.reader.coordinates_rank == 2:
+                self.lats = lat[0:self.reader.n_longitudes - 1, 0:self.reader.n_latitudes - 1]
+                self.lons = lon[0:self.reader.n_longitudes - 1, 0:self.reader.n_latitudes - 1]
+
+    def create_title(self, n_time):
+        with self.reader.open():
+            data = self.reader.get_date(n_time)
+            data_str = data.strftime("%Y-%m-%d %H:%M UTC")
+            data_comp = data.strftime("%Y%m%d%H%M")
+            self.title_full = self.title + " " + data_str
+            self.file_out_full = self.file_out + '_' + data_comp + '.png'
+
+    def reader_uv_by_time(self, n_time):
+
+        with self.reader.open():
+            u = self.reader.get_variable(self.u_name, n_time)
+            v = self.reader.get_variable(self.v_name, n_time)
+
+            if len(u.shape) == 3:
+                self.us = u[self.level, 0:self.reader.n_latitudes - 1, 0:self.reader.n_longitudes - 1]
+                self.vs = v[self.level, 0:self.reader.n_latitudes - 1, 0:self.reader.n_longitudes - 1]
+            elif len(u.shape) == 2:
+                self.us = u[0:self.reader.n_latitudes - 1, 0:self.reader.n_longitudes - 1]
+                self.vs = v[0:self.reader.n_latitudes - 1, 0:self.reader.n_longitudes - 1]
+
+            self.mod = pow((pow(self.us, 2) + pow(self.vs, 2)), .5)
+
+    def reader_uv(self):
+        self.reader_uv_by_time(self.time)
+
+    def draw(self):
+
+        drawcurrents(self.reader.coordinates_rank, self.nx, self.ny, self.scale, self.resolution,
+                     self.level, self.time, self.lats, self.lons, self.us, self.vs, self.mod,
+                     self.file_out_full, self.title_full, self.style, self.boundary_box)
 
 
 if __name__ == '__main__':

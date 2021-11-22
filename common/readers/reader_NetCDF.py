@@ -6,8 +6,8 @@ from .reader import Reader
 
 class ReaderNetCDF(Reader):
 
-    def open(self, file):
-        dataset = netCDF4.Dataset(file)
+    def open(self):
+        dataset = netCDF4.Dataset(self.file)
         self.variables = dataset.variables
         return dataset
 
@@ -53,4 +53,5 @@ class ReaderNetCDF(Reader):
                     if nome_atributo == var_name:
                         return self.variables[var]
 
-
+    def get_ini_ntime(self):
+        return 0

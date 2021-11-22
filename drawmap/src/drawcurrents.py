@@ -14,7 +14,7 @@ def drawcurrents(coordinates_rank, nx, ny, scale, resolution,
     fig = plt.figure(figsize=(10, 10))
     ax = fig.add_subplot(111)
 
-    dx = 0.1
+    dx = 0.01
     middle_lon = boundary_box.middle_lon()
     middle_lat = boundary_box.middle_lat()
     m = Basemap(llcrnrlon=boundary_box.lon_min - dx,
@@ -24,7 +24,7 @@ def drawcurrents(coordinates_rank, nx, ny, scale, resolution,
                 resolution=resolution, projection='tmerc', lon_0=middle_lon, lat_0=middle_lat)
 
     m.drawcoastlines()
-    #m.fillcontinents(color='grey', lake_color='aqua')
+    m.fillcontinents(color='grey', lake_color='aqua')
 
 
     #m.drawmapboundary(fill_color='aqua')
@@ -76,5 +76,6 @@ def drawcurrents(coordinates_rank, nx, ny, scale, resolution,
     fig.savefig(file_out, dpi=100, facecolor='w', edgecolor='w', format='png',
                 transparent=False,  bbox_inches='tight', pad_inches=0.1)
     plt.clf()
+    plt.close(fig)
 
     return
