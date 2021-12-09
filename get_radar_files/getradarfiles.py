@@ -42,9 +42,7 @@ def sftp_walk(sftp, remote_path):
 
 def ssh_connection_password(path):
 
-    connection_params = read_connection(r'.\..\datos\pass\combine.json')
-    print(connection_params['host'])
-
+    connection_params = read_connection(path)
     transport = paramiko.Transport(connection_params['host'], 22)
     transport.connect(username=connection_params['user'], password=connection_params['password'])
     return transport
@@ -52,25 +50,34 @@ def ssh_connection_password(path):
 
 def main():
 
-    connection_params_path = r'.\..\datos\pass\combine.json'
-    key_file = r'.\..\datos\pass\id_rsa.pub'
+    sftp = get_stfp(r'.\..\datos\pass\combine.json')
+    stations = ['LPRO','SILL','VILA','PRIO','FIST']
+    remote_root_path =r'/Codar/SeaSonde/Data/RadialSites/Site_'
+    for station in stations:
+
+        remote_path = remote_root_path + station
+
+        for path, files in sftp_walk(sftp, remote_path):
+            for file in files:
+                print(f'Atopei o ficheiro {file} no cartafol {path}')
+                if file.split('.')[-1] == 'ruv':
+                    remote_file = path + "/" + file
+                    local_dir = os.path.join('../datos/radar/radials', station)
+                    if not os.path.exists(local_dir):
+                        os.makedirs(local_dir)
+                    local_file = os.path.join(local_dir, file)
+                    if not os.path.exists(local_file):
+                        print(f'Get from {remote_file} to {local_file}')
+                        sftp.get(remote_file, local_file)
+                    else:
+                        print(f'{file} xa está baixado')
+    sftp.close()
+
+
+def get_stfp(connection_params_path):
     transport = ssh_connection_password(connection_params_path)
     sftp = paramiko.SFTPClient.from_transport(transport)
-    remote_path = '/Codar/SeaSonde/Data/RadialSites/Site_FIST'
-
-    for path, files in sftp_walk(sftp, remote_path):
-        for file in files:
-            if file.split('.')[-1] == 'ruv':
-                remote_file = path + "/" + file
-                local_file = os.path.join('../datos/radar/radials', file)
-                if not os.path.exists(local_file):
-                    print(f'Get from {remote_file} to {local_file}')
-                    sftp.get(remote_file, local_file)
-                else:
-                    print(f'{file} xa está baixado')
-    #file_name = 'RDLm_FIST_2021_10_23_0300.ruv'
-    #sftp.get(file_name, os.path.join(get_path_out('datos/getradarfiles'), file_name))
-    sftp.close()
+    return sftp
 
 
 if __name__ == '__main__':

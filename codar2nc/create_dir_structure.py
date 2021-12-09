@@ -50,16 +50,10 @@ class FolderTree:
         return os.path.isdir(os.path.join(self.root, self.get_radial_folder(station, day)))
 
 
-
 def main():
     root = os.path.join('', './data/inicio')
     folder_tree = FolderTree(root, 'Galicia')
     folder_tree.make_radial_folder_for_days(34)
-
-
-
-
-
 
 
 if __name__ == '__main__':
