@@ -1,7 +1,7 @@
 {
   "type_url": "hydro_hist",
-  "name_grid":  "VIGO",
-  "date_ini":  "2018-06-12",
+  "name_grid":  "ARTABRO",
+  "date_ini":  "2018-11-23",
   "days":  0,
-  "path_out": "datos/download_models"
+  "path_out": "../datos/download_models"
 }

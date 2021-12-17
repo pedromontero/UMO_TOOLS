@@ -41,9 +41,16 @@ class Ruv2Nc:
                 if check_nc_file(file_2hour_previous):
                     shutil.copy(file_2hour_previous, self.nc_folder)
                 print(f'---vou necesitar {file_previous_hour} e {file_2hour_previous}')
-                ruv2nc(self.ruv_folder, self.nc_folder, file)
-                print(os.path.join(self.nc_folder,get_radial_name(site, day)), full_file)
-                shutil.move(os.path.join(self.nc_folder,get_radial_name(site, day)),  full_file)
+                try:
+                    ruv2nc(self.ruv_folder, self.nc_folder, file)
+                    print(os.path.join(self.nc_folder,get_radial_name(site, day)), full_file)
+
+                except KeyError as e:
+                    print("Error: KeyError", e)
+                except:
+                    print("Another exception")
+                else:
+                    shutil.move(os.path.join(self.nc_folder, get_radial_name(site, day)), full_file)
                 shutil.rmtree(self.nc_folder)
                 os.makedirs(self.nc_folder)
 
