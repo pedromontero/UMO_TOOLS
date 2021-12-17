@@ -649,7 +649,7 @@ class Grid():
         m = Basemap(llcrnrlon=-11.0, llcrnrlat=41.8, urcrnrlon=-8, urcrnrlat=44.5, resolution='h', projection='tmerc', lon_0=origen_lon, lat_0=origen_lat)
 
         # Necesito las coordenadas del origen y su proyección:
-        origen_x, origen_y     = m(origen_lon, origen_lat)
+        origen_x, origen_y = m(origen_lon, origen_lat)
 
         # Coordenadas polares de los puntos:
         RangeResolutionKMeters = radial.RangeResolutionKMeters
@@ -690,7 +690,7 @@ class Grid():
         self.latitud  = xr.DataArray(latitud , dims={'BEAR' : nBEAR, 'RNGE' : nRNGE}, coords={'BEAR' : BEAR, 'RNGE' : RNGE})
 
         # ... y las coordenadas polares de los puntos:
-        self.RNGE,self.BEAR          = RNGE,BEAR
+        self.RNGE,self.BEAR = RNGE, BEAR
 
     def __repr__(self):
     
