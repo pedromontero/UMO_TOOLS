@@ -66,7 +66,10 @@ def get_stfp(connection_params_path):
     sftp = paramiko.SFTPClient.from_transport(transport)
     return sftp
 
-def main():
+
+def get_radar_files(root_dir):
+
+    root_dir = os.path.join(root_dir, 'radarhf_tmp', 'ruv')
 
     sftp = get_stfp(r'./pass/combine.json')
     stations = ['LPRO', 'SILL', 'VILA', 'PRIO', 'FIST']
@@ -81,7 +84,7 @@ def main():
                 print(f'Atopei o ficheiro {file} no cartafol {path}')
                 if file.split('.')[-1] == 'ruv':
                     remote_file = path + "/" + file
-                    local_dir = os.path.join('../datos/radar/radials', station)
+                    local_dir = os.path.join(root_dir, station)
                     if not os.path.exists(local_dir):
                         os.makedirs(local_dir)
                     local_file = os.path.join(local_dir, file)
@@ -92,6 +95,10 @@ def main():
                         print(f'{file} xa está baixado')
                         pass
     sftp.close()
+
+def main():
+    data_folder = r'../datos'
+    get_radar_files(data_folder)
 
 
 if __name__ == '__main__':
