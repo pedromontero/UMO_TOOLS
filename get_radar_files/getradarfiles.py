@@ -24,6 +24,7 @@ def read_connection(input_file):
 
 
 def sftp_walk(sftp, remote_path):
+
     path = remote_path
     files = []
     folders = []
@@ -40,6 +41,18 @@ def sftp_walk(sftp, remote_path):
             yield x
 
 
+def sftp_get_filenames_by_extension(sftp, remote_path, extension):
+
+    path = remote_path
+    files = []
+    for f in sftp.listdir_attr(remote_path):
+        if not S_ISDIR(f.st_mode):
+            if f.filename[-3:] == extension:
+                files.append(f.filename)
+    if files:
+        yield path, files
+
+
 def ssh_connection_password(path):
 
     connection_params = read_connection(path)
@@ -48,16 +61,22 @@ def ssh_connection_password(path):
     return transport
 
 
+def get_stfp(connection_params_path):
+    transport = ssh_connection_password(connection_params_path)
+    sftp = paramiko.SFTPClient.from_transport(transport)
+    return sftp
+
 def main():
 
-    sftp = get_stfp(r'.\..\datos\pass\combine.json')
-    stations = ['LPRO','SILL','VILA','PRIO','FIST']
+    sftp = get_stfp(r'./pass/combine.json')
+    stations = ['LPRO', 'SILL', 'VILA', 'PRIO', 'FIST']
     remote_root_path =r'/Codar/SeaSonde/Data/RadialSites/Site_'
     for station in stations:
 
         remote_path = remote_root_path + station
+        print(f'remote path = {remote_path}')
 
-        for path, files in sftp_walk(sftp, remote_path):
+        for path, files in sftp_get_filenames_by_extension(sftp, remote_path, 'ruv'):
             for file in files:
                 print(f'Atopei o ficheiro {file} no cartafol {path}')
                 if file.split('.')[-1] == 'ruv':
@@ -71,13 +90,8 @@ def main():
                         sftp.get(remote_file, local_file)
                     else:
                         print(f'{file} xa está baixado')
+                        pass
     sftp.close()
-
-
-def get_stfp(connection_params_path):
-    transport = ssh_connection_password(connection_params_path)
-    sftp = paramiko.SFTPClient.from_transport(transport)
-    return sftp
 
 
 if __name__ == '__main__':
