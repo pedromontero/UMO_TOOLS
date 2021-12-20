@@ -4,6 +4,7 @@ import shutil
 from datetime import datetime, timedelta
 from create_dir_structure import FolderTree, get_radial_name
 from ruv2nc import ruv2nc
+import getradarfiles
 
 
 def check_nc_file(full_file):
@@ -17,7 +18,7 @@ def check_nc_file(full_file):
 
 class Ruv2Nc:
     def __init__(self, data_folder, station):
-        self.ruv_folder = os.path.join(data_folder, 'radarhf_tmp','ruv', station)
+        self.ruv_folder = os.path.join(data_folder, 'radarhf_tmp', 'ruv', station)
         self.root_folder = os.path.join(data_folder, 'radarhf/dev/RadarOnRAIA/Radials/v2.2')
         self.nc_folder = os.path.join(data_folder, 'radarhf_tmp', 'nc')
 
@@ -65,4 +66,6 @@ def ruv2thredds(data_folder):
 
 if __name__ == '__main__':
     data_folder = r'../datos/'
+    getradarfiles.get_radar_files(data_folder)
+
     ruv2thredds(data_folder)
