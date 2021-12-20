@@ -7,7 +7,7 @@ paramiko.util.log_to_file("paramiko.log")
 
 
 def get_path_out(path_out):
-    os.chdir(r'.\..')
+    os.chdir(r'..')
     root = os.getcwd()
     path_out = os.path.join(root, path_out)
     return path_out
@@ -71,7 +71,7 @@ def get_radar_files(root_dir):
 
     root_dir = os.path.join(root_dir, 'radarhf_tmp', 'ruv')
 
-    sftp = get_stfp(r'./pass/combine.json')
+    sftp = get_stfp(r'pass/combine.json')
     stations = ['LPRO', 'SILL', 'VILA', 'PRIO', 'FIST']
     remote_root_path =r'/Codar/SeaSonde/Data/RadialSites/Site_'
     for station in stations:
@@ -95,6 +95,7 @@ def get_radar_files(root_dir):
                         print(f'{file} xa está baixado')
                         pass
     sftp.close()
+
 
 def main():
     data_folder = r'../datos'
