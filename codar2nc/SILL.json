@@ -1,5 +1,5 @@
 {
-    "Conventions": "CF-1.6 Jerico-Next-deliverable-D5.14 Copernicus-InSituTAC-Manual-1.0 Copernicus-InSituTAC-SRD-1.4 Copernicus-InSituTAC-ParametersList-3.1.0",
+    "Conventions": "CF-1.6 Jerico-Next-deliverable-D5.14 Copernicus-InSituTAC-Manual-1.0 Copernicus-InSituTAC-SRD-1.4 Copernicus-InSituTAC-ParametersList-3.2.0",
     "DoA_estimation_method": "Direction Finding",
     "RangeResolutionMeters": "",
     "acknowledgment": "Galicia HF Radar Network has been established within RAIA and MyCoast projects.",
@@ -34,7 +34,7 @@
     "institution_reference": "http://www.puertos.es",
     "keywords": "OCEAN CURRENTS, SURFACE WATER, RADAR, SCR-HF",
     "keywords_vocabulary": "GCMD Science Keywords",
-    "last_calibration_date": "2020-03-09T00:00:00Z",
+    "last_calibration_date": "2021-06-09T00:00:00Z",
     "license": "These data may contain inaccuarecies or errors, thus we decline every responsability for their use. Please, contact Puertos del Estado to request permission to use these data.",
     "metadata_character_set": "utf8",
     "metadata_contact": "lorenzo.corgnati@sp.ismar.cnr.it",
