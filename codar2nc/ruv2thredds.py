@@ -57,7 +57,7 @@ class Ruv2Nc:
 
 
 def ruv2thredds(data_folder):
-    stations = ['SILL', 'VILA', 'LPRO', 'PRIO', 'FIST']
+    stations = ['LPRO', 'SILL', 'FIST', 'VILA', 'PRIO']
     for station in stations:
         ruv2nc = Ruv2Nc(data_folder, station)
         thredds = FolderTree(ruv2nc.root_folder)
