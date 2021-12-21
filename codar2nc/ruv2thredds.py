@@ -18,9 +18,11 @@ def check_nc_file(full_file):
 
 class Ruv2Nc:
     def __init__(self, data_folder, station):
-        self.ruv_folder = os.path.join(data_folder, 'radarhf_tmp', 'ruv', station)
+        self.station = station
+        self.ruv_folder = os.path.join(data_folder, 'radarhf_tmp', 'ruv', self.station)
         self.root_folder = os.path.join(data_folder, 'radarhf/dev/RadarOnRAIA/Radials/v2.2')
         self.nc_folder = os.path.join(data_folder, 'radarhf_tmp', 'nc')
+
 
     def check_nc_files(self, thredds):
 
@@ -43,7 +45,7 @@ class Ruv2Nc:
                     shutil.copy(file_2hour_previous, self.nc_folder)
                 print(f'---vou necesitar {file_previous_hour} e {file_2hour_previous}')
                 try:
-                    ruv2nc(self.ruv_folder, self.nc_folder, file)
+                    ruv2nc(self.ruv_folder, self.nc_folder, file, self.station)
                     print(os.path.join(self.nc_folder, get_radial_name(site, day)), full_file)
 
                 except KeyError as e:
