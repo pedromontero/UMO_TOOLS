@@ -34,7 +34,9 @@ import logging
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-deg2rad = np.pi/180 
+deg2rad = np.pi/180
+
+NRANGE = {'LPRO': 90, 'SILL': 60, 'FIST': 60, 'VILA': 60, 'PRIO': 60}
 
 dtypes = {"TIME"        : 'float64',
                  "DEPH"        : 'float32',
@@ -110,12 +112,12 @@ for key, value in scale_factors.items():
     if isinstance(value, float):
 
         scale_factors[key] = np.float32(scale_factors[key])
-        add_offsets[key]   = np.float32(0)
+        add_offsets[key]= np.float32(0)
 
     else:
 
         # Generamos un conversor de tipo a partir del tipo de la variable:
-        conversor           = np.dtype(dtypes[key])
+        conversor = np.dtype(dtypes[key])
     
         # Utilizamos el conversor para recodificar un tipo nativo de python a un escalar tipo numpy:
         scale_factors[key] = np.int_(scale_factors[key]).astype(conversor)
@@ -254,7 +256,7 @@ class Radial:
         metadatos = dict([(linea.split(':')[0],linea.split(':')[1]) for linea in metadatos if ':' in str(linea) ])
 
         # Parseamos algunos metadatos que necesitaremos:
-        self.Origin                   = np.array(metadatos['Origin'].split(),dtype=float)
+        self.Origin                   = np.array(metadatos['Origin'].split(), dtype=float)
         self.RangeEnd                 = int(metadatos['RangeEnd'])
         self.RangeResolutionKMeters   = float(metadatos['RangeResolutionKMeters'])
         self.AntennaBearing           = float(metadatos['AntennaBearing'].replace('True',''))
@@ -282,7 +284,7 @@ class Radial:
             if lengths[i] != 0:
 
                 start = starts[i] + 1
-                end= ends[i]
+                end = ends[i]
 
                 tablas.append(pd.DataFrame(np.array([linea.split() for linea in contenido[start:end]],dtype=float), columns=headers[i]))
 
@@ -316,42 +318,43 @@ class Radial:
 
         self.variables = OrderedDict()
 
-        # Necesitamos completar la lista de coordenadas:
-        delta = self.TimeStamp - datetime(1950,1,1)
+        # Complete list of coordinates:
+        delta = self.TimeStamp - datetime(1950, 1, 1)
         self.variables['TIME'] = xr.DataArray([delta.days + delta.seconds/86400], dims   = {'TIME' : 1})
         self.variables['DEPH'] = xr.DataArray([0.], dims   = {'DEPTH' : 1})
 
         for variable in variables:
             
-            # Creamos la matriz que se llenará con los datos:
-            tmp          = np.ones_like(grid.longitud.values.flatten())*np.nan
+            # Create the matrix to be filled with data:
+            tmp = np.ones_like(grid.longitud.values.flatten())*np.nan
 
-            # Asignamos los vecinos más próximos:
+            # Set nearest neighbours:
             tmp[vecinos] = self.tablas[0][variable]
 
-            # Volvemos a la forma original:
-            tmp          = tmp.reshape(grid.longitud.shape)
+            # Back to original shape:
+            tmp = tmp.reshape(grid.longitud.shape)
 
             # Creamos el DataArray:
-            if variable in ['EWCT', 'NSCT', 'OWTR_QC', 'MINV', 'MAXV', 'RDVA', 'DRVA', 'ESPC', 'ETMP', 'ERSC', 'ERTC', 'SPRC']:
+            if variable in ['EWCT', 'NSCT', 'OWTR_QC', 'MINV', 'MAXV', 'RDVA', 'DRVA', 'ESPC', 'ETMP', 'ERSC', 'ERTC',
+                            'SPRC']:
 
                 # Crecemos en DEPTH:
-                tmp = np.expand_dims(tmp,axis=0)
+                tmp = np.expand_dims(tmp, axis=0)
 
                 # Crecemos en TIME:
                 tmp = np.expand_dims(tmp,axis=0)
 
                 self.variables[variable] = xr.DataArray(tmp, 
-                                           dims   = {'TIME' : 1, 'DEPTH' : 1, 'BEAR' : grid.nBEAR, 'RNGE' : grid.nRNGE},
+                                           dims={'TIME': 1, 'DEPTH': 1, 'BEAR' : grid.nBEAR, 'RNGE' : grid.nRNGE},
                                            coords = {'TIME' : self.variables['TIME'], 'DEPH' : self.variables['DEPH'], 'BEAR' : grid.BEAR , 
                                                      'RNGE' : grid.RNGE, 'LONGITUDE' : grid.longitud, 'LATITUDE' : grid.latitud,
                                                      'XDST' : grid.X, 'YDST' : grid.Y})
 
                 # Encoding de las variables en el fichero:
                 self.variables[variable].encoding["scale_factor"] = scale_factors[variable]
-                self.variables[variable].encoding["add_offset"  ] = add_offsets[variable]
-                self.variables[variable].encoding["dtype"       ] = dtypes[variable]
-                self.variables[variable].encoding["_FillValue"  ] = _FillValues[variable]
+                self.variables[variable].encoding["add_offset"] = add_offsets[variable]
+                self.variables[variable].encoding["dtype"] = dtypes[variable]
+                self.variables[variable].encoding["_FillValue"] = _FillValues[variable]
 
     def QC_control(self):
 
@@ -391,10 +394,11 @@ class Radial:
         
         # Depth quality flag
         sdnDepth_QCflag = 1
-        self.variables['DEPH_QC'] = xr.DataArray(sdnTime_QCflag, dims   = {'TIME' : 1}, coords = {'TIME' : self.variables['TIME']})
+        self.variables['DEPH_QC'] = xr.DataArray(sdnTime_QCflag, dims={'TIME': 1},
+                                                 coords={'TIME': self.variables['TIME']})
 
         # Variance Threshold QC test
-        varVec = etmp**2 #varVec = etmp.^2;
+        varVec = etmp**2
 
         # Average Radial Bearing QC test:
         # avgBear_HEAD = head.values[~np.isnan(head).values].mean() # avgBear_HEAD = mean(head(~isnan(head)));
@@ -435,7 +439,7 @@ class Radial:
         '''
 
         # Set the QC flag for the current hour to 0 (no QC performed)
-        tempDer  = radVel.copy()
+        tempDer = radVel.copy()
         tempDer *= 0
 
         self.variables['VART_QC'] = tempDer
@@ -453,12 +457,12 @@ class Radial:
         for i in range(nRange):
             for j in range(nBear):
 
-                if condicion[j,i]:
+                if condicion[j, i]:
 
-                    refBear = bear[j,i]
+                    refBear = bear[j, i]
 
                     # Condición de puntos que están a menos de una distancia dada:
-                    ventana  = np.sqrt((X-X[j,i])**2 + (Y-Y[j,i])**2) <= Radial_QC_params.MedFilt[0]
+                    ventana  = np.sqrt((X-X[j, i])**2 + (Y-Y[j, i])**2) <= Radial_QC_params.MedFilt[0]
 
                     # Condición de distancia angular (con codigo para controlar el círculo):
                     dif = bear - refBear
@@ -521,11 +525,11 @@ class Radial:
         for variable in ['TIME_QC', 'POSITION_QC', 'DEPH_QC', 'QCflag', 'OWTR_QC', 'MDFL_QC', 'VART_QC', 'CSPD_QC', 'AVRB_QC', 'RDCT_QC']:
 
                 # Encoding de las variables en el fichero:
-                self.variables[variable].encoding["scale_factor"] = scale_factors[variable]
-                self.variables[variable].encoding["add_offset"  ] = add_offsets[variable]
-                self.variables[variable].encoding["dtype"       ] = dtypes[variable]
-                self.variables[variable].encoding["_FillValue"  ] = _FillValues[variable]
 
+                self.variables[variable].encoding["scale_factor"] = scale_factors[variable]
+                self.variables[variable].encoding["add_offset"] = add_offsets[variable]
+                self.variables[variable].encoding["dtype"] = dtypes[variable]
+                self.variables[variable].encoding["_FillValue"] = _FillValues[variable]
 
     def to_netcdf(self, path_out, fichero):
 
@@ -552,37 +556,37 @@ class Radial:
         self.variables['SDN_STATION'] = xr.DataArray(np.array([cadena]), dims={'TIME': 1})
 
         cadena = ('HFR-Galicia-%s_%sZ' % (radar, self.TimeStamp.isoformat())).encode()
-        n      = len(cadena)
-        self.variables['SDN_LOCAL_CDI_ID'] = xr.DataArray(np.array([cadena]), dims   = {'TIME' : 1})
+        n = len(cadena)
+        self.variables['SDN_LOCAL_CDI_ID'] = xr.DataArray(np.array([cadena]), dims={'TIME': 1})
 
         cadena = b'http://opendap.intecmar.gal/thredds/catalog/data/nc/RADAR_HF/Galicia/catalog.html'
-        n      = len(cadena)
-        self.variables['SDN_REFERENCES'] = xr.DataArray(np.array([cadena]), dims   = {'TIME' : 1})
+        n= len(cadena)
+        self.variables['SDN_REFERENCES'] = xr.DataArray(np.array([cadena]), dims={'TIME': 1})
 
         cadena = b"<sdn_reference xlink:href=\"http://opendap.intecmar.gal/thredds/catalog/data/nc/RADAR_HF/Galicia/catalog.html\" xlink:role=\"\" xlink:type=\"URL\"/>"
-        n      = len(cadena)
-        self.variables['SDN_XLINK'] = xr.DataArray(np.array([[cadena]]), dims   = {'TIME' : 1, 'REFMAX' : 1})
+        n= len(cadena)
+        self.variables['SDN_XLINK'] = xr.DataArray(np.array([[cadena]]), dims={'TIME': 1, 'REFMAX': 1})
 
         # Otras:
         siteLat, siteLon = self.Origin
-        self.variables['SLTR'] = xr.DataArray([[siteLat]], dims   = {'TIME' : 1, 'MAXSITE' : 1})
-        self.variables['SLNR'] = xr.DataArray([[siteLon]], dims   = {'TIME' : 1, 'MAXSITE' : 1})
-        self.variables['SLTT'] = xr.DataArray([[siteLat]], dims   = {'TIME' : 1, 'MAXSITE' : 1})
-        self.variables['SLNT'] = xr.DataArray([[siteLon]], dims   = {'TIME' : 1, 'MAXSITE' : 1})
+        self.variables['SLTR'] = xr.DataArray([[siteLat]], dims   = {'TIME': 1, 'MAXSITE': 1})
+        self.variables['SLNR'] = xr.DataArray([[siteLon]], dims   = {'TIME': 1, 'MAXSITE': 1})
+        self.variables['SLTT'] = xr.DataArray([[siteLat]], dims   = {'TIME': 1, 'MAXSITE': 1})
+        self.variables['SLNT'] = xr.DataArray([[siteLon]], dims   = {'TIME': 1, 'MAXSITE': 1})
 
         cadena = ('%s' % radar).encode()
         n      = len(cadena)
-        self.variables['SCDR'] = xr.DataArray(np.array([[cadena]]), dims   = {'TIME' : 1, 'MAXSITE' : 1})
-        self.variables['SCDT'] = xr.DataArray(np.array([[cadena]]), dims   = {'TIME' : 1, 'MAXSITE' : 1})
+        self.variables['SCDR'] = xr.DataArray(np.array([[cadena]]), dims={'TIME': 1, 'MAXSITE': 1})
+        self.variables['SCDT'] = xr.DataArray(np.array([[cadena]]), dims={'TIME': 1, 'MAXSITE': 1})
 
         numSites = 1
-        self.variables['NARX'] = xr.DataArray([numSites], dims   = {'TIME' : 1})
-        self.variables['NATX'] = xr.DataArray([numSites], dims   = {'TIME' : 1})
+        self.variables['NARX'] = xr.DataArray([numSites], dims={'TIME' : 1})
+        self.variables['NATX'] = xr.DataArray([numSites], dims={'TIME' : 1})
 
-        for variable in ['SLTT','SLNT','SLTR','SLNR','NARX','NATX']:
+        for variable in ['SLTT', 'SLNT', 'SLTR', 'SLNR', 'NARX', 'NATX']:
                 # Encoding de las variables en el fichero:
                 self.variables[variable].encoding["scale_factor"] = scale_factors[variable]
-                self.variables[variable].encoding["add_offset"  ] = add_offsets[variable]
+                self.variables[variable].encoding["add_offset"] = add_offsets[variable]
                 self.variables[variable].encoding["dtype"       ] = dtypes[variable]
                 self.variables[variable].encoding["_FillValue"  ] = _FillValues[variable]
 
@@ -708,7 +712,7 @@ class Radial_QC_params():
     MedFilt     = [5000,30*np.pi/180,1]  # 5km, 30 grados y 1m/s
 
 
-class Grid():
+class Grid:
 
     """
     Clase para la generación de la malla para albergar los datos
@@ -721,7 +725,7 @@ class Grid():
     -------
     """
 
-    def __init__(self, radial, nBEAR=72, nRNGE=40):
+    def __init__(self, radial, nBEAR=72, nRNGE=42):
 
         """
         Constructor
@@ -758,6 +762,7 @@ class Grid():
         # Radios:
         RNGE = np.arange(nRNGE)*RangeResolutionKMeters*1000
 
+
         # Ángulos:
         BEAR = np.arange(nBEAR)*AngularResolution + AntennaBearing 
         # BEAR = np.sort(BEAR%360)*deg2rad
@@ -778,14 +783,15 @@ class Grid():
         X    /= 1000
         Y    /= 1000
         RNGE /= 1000
+        print(RNGE)
 
         # Guardamos las coordenadas proyectadas para trabajar en el plano:
         self.X = xr.DataArray(X, dims={'BEAR' : nBEAR, 'RNGE' : nRNGE}, coords={'BEAR' : BEAR, 'RNGE' : RNGE})
         self.Y = xr.DataArray(Y, dims={'BEAR' : nBEAR, 'RNGE' : nRNGE}, coords={'BEAR' : BEAR, 'RNGE' : RNGE})
 
         # ... que se guardan como xr.DataArray para su uso futuro en la definición de las variables:
-        self.longitud = xr.DataArray(longitud, dims={'BEAR' : nBEAR, 'RNGE' : nRNGE}, coords={'BEAR' : BEAR, 'RNGE' : RNGE})
-        self.latitud  = xr.DataArray(latitud , dims={'BEAR' : nBEAR, 'RNGE' : nRNGE}, coords={'BEAR' : BEAR, 'RNGE' : RNGE})
+        self.longitud = xr.DataArray(longitud, dims={'BEAR': nBEAR, 'RNGE' : nRNGE}, coords={'BEAR' : BEAR, 'RNGE' : RNGE})
+        self.latitud  = xr.DataArray(latitud , dims={'BEAR': nBEAR, 'RNGE' : nRNGE}, coords={'BEAR' : BEAR, 'RNGE' : RNGE})
 
         # ... y las coordenadas polares de los puntos:
         self.RNGE,self.BEAR = RNGE, BEAR
@@ -834,7 +840,7 @@ def VART_QC(ficheros):
     datasets[1].to_netcdf('%s_new.nc' % ficheros[1].split('.')[0])
 
 
-def ruv2nc(path_in, path_out, fichero):
+def ruv2nc(path_in, path_out, fichero, station):
 
    # file_in= os.path.join(path_in, fichero)
     file_in = path_in + '/' + fichero
@@ -846,7 +852,7 @@ def ruv2nc(path_in, path_out, fichero):
     radial = Radial(file_in)
 
     # Creamos la malla donde queremos inscribir la tabla:
-    grd = Grid(radial)
+    grd = Grid(radial, nRNGE=NRANGE[station])
 
     # Metemos la tabla en la malla:
     radial.to_grid(grd)
@@ -872,10 +878,10 @@ def ruv2nc(path_in, path_out, fichero):
 
 
 if __name__ == '__main__':
-    file = r'RDLm_FIST_2021_10_24_0800.ruv'
-    path_in = r'../datos/radar/radials'
-    path_out = r'../datos/radar/nc'
-    ruv2nc(path_in, path_out, file)
+    file = r'RDLm_SILL_2021_12_12_0000.ruv'
+    path_in = r'../datos/radarhf_tmp/ruv/SILL'
+    path_out = r'../datos/radarhf_tmp/nc'
+    ruv2nc(path_in, path_out, file, 'SILL')
 
 
 
