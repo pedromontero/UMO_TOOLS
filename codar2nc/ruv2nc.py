@@ -538,17 +538,18 @@ class Radial:
         self.variables['crs'] = xr.DataArray(np.int16(0),)
 
         # Datos SDN:
-        SDN_EDMO_CODEs = {'PRIO' : 4841, 'SILL' : 2751, 'VILA' : 4841, 'FIST': 2751}
+        SDN_EDMO_CODEs = {'PRIO': 4841, 'SILL': 2751, 'VILA': 4841, 'FIST': 2751, 'LPRO': 590}
 
-        self.variables['SDN_EDMO_CODE'] = xr.DataArray(np.int16([[SDN_EDMO_CODEs[radar]]]), dims   = {'TIME' : 1, 'MAXINST' : 1})
+        self.variables['SDN_EDMO_CODE'] = xr.DataArray(np.int16([[SDN_EDMO_CODEs[radar]]]),
+                                                       dims={'TIME': 1, 'MAXINST': 1})
 
         cadena = b'HFR-Galicia'
-        n      = len(cadena)
-        self.variables['SDN_CRUISE'] = xr.DataArray(np.array([cadena]), dims   = {'TIME' : 1})
+        n = len(cadena)
+        self.variables['SDN_CRUISE'] = xr.DataArray(np.array([cadena]), dims={'TIME': 1})
 
         cadena = ('HFR-Galicia-%s' % radar).encode()
-        n      = len(cadena)
-        self.variables['SDN_STATION'] = xr.DataArray(np.array([cadena]), dims   = {'TIME' : 1})
+        n = len(cadena)
+        self.variables['SDN_STATION'] = xr.DataArray(np.array([cadena]), dims={'TIME': 1})
 
         cadena = ('HFR-Galicia-%s_%sZ' % (radar, self.TimeStamp.isoformat())).encode()
         n      = len(cadena)
