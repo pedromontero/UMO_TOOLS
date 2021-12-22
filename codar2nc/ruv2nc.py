@@ -748,7 +748,7 @@ class Grid:
         #m = Basemap(llcrnrlon=-11.0, llcrnrlat=41.8, urcrnrlon=-8, urcrnrlat=44.5, resolution='h', projection='tmerc', lon_0=-8, lat_0=45)
         #m = Basemap(llcrnrlon=-11.0, llcrnrlat=41.8, urcrnrlon=-8, urcrnrlat=44.5, resolution='h', projection='tmerc', lon_0=origen_lon, lat_0=origen_lat)
         pr = Proj(
-            '+proj=tmerc +bR_a=6370997.0 +units=m +lat_0=42.0 +lon_0=-8.0 +x_0=249341.9581021159 +y_0=17861.19187674373 ')
+            '+proj=tmerc +bR_a=6370997.0 +units=m +lat_0=42.0 +lon_0=-8.0 +x_0=249341.9581021159 +y_0=17861.19187674373')
 
         # Necesito las coordenadas del origen y su proyección:
         origen_x, origen_y = pr(origen_lon, origen_lat)
@@ -756,20 +756,20 @@ class Grid:
         # Coordenadas polares de los puntos:
         RangeResolutionKMeters = radial.RangeResolutionKMeters
 
-        AntennaBearing    = radial.AntennaBearing
+        AntennaBearing  = radial.AntennaBearing
         AngularResolution = radial.AngularResolution
 
         # Radios:
         RNGE = np.arange(nRNGE)*RangeResolutionKMeters*1000
 
-
         # Ángulos:
         BEAR = np.arange(nBEAR)*AngularResolution + AntennaBearing 
         # BEAR = np.sort(BEAR%360)*deg2rad
-        BEAR = np.sort(BEAR%360)
+        BEAR = np.sort(BEAR % 360)
 
         # Generamos la lista de vectores unitarios en las direcciones:
-        X, Y = rotate_vector(pr,np.sin(BEAR*deg2rad), np.cos(BEAR*deg2rad), np.repeat(origen_lon, len(BEAR)), np.repeat(origen_lat,len(BEAR)))
+        X, Y = rotate_vector(pr, np.sin(BEAR*deg2rad), np.cos(BEAR*deg2rad),
+                             np.repeat(origen_lon, len(BEAR)), np.repeat(origen_lat, len(BEAR)))
 
         X = np.array([RNGE*x + origen_x for x in X])
         Y = np.array([RNGE*y + origen_y for y in Y])
@@ -783,18 +783,20 @@ class Grid:
         X    /= 1000
         Y    /= 1000
         RNGE /= 1000
-        print(RNGE)
+
 
         # Guardamos las coordenadas proyectadas para trabajar en el plano:
-        self.X = xr.DataArray(X, dims={'BEAR' : nBEAR, 'RNGE' : nRNGE}, coords={'BEAR' : BEAR, 'RNGE' : RNGE})
-        self.Y = xr.DataArray(Y, dims={'BEAR' : nBEAR, 'RNGE' : nRNGE}, coords={'BEAR' : BEAR, 'RNGE' : RNGE})
+        self.X = xr.DataArray(X, dims={'BEAR': nBEAR, 'RNGE': nRNGE}, coords={'BEAR': BEAR, 'RNGE' : RNGE})
+        self.Y = xr.DataArray(Y, dims={'BEAR': nBEAR, 'RNGE': nRNGE}, coords={'BEAR': BEAR, 'RNGE' : RNGE})
 
         # ... que se guardan como xr.DataArray para su uso futuro en la definición de las variables:
-        self.longitud = xr.DataArray(longitud, dims={'BEAR': nBEAR, 'RNGE' : nRNGE}, coords={'BEAR' : BEAR, 'RNGE' : RNGE})
-        self.latitud  = xr.DataArray(latitud , dims={'BEAR': nBEAR, 'RNGE' : nRNGE}, coords={'BEAR' : BEAR, 'RNGE' : RNGE})
+        self.longitud = \
+            xr.DataArray(longitud, dims={'BEAR': nBEAR, 'RNGE': nRNGE}, coords={'BEAR': BEAR, 'RNGE': RNGE})
+        self.latitud = \
+            xr.DataArray(latitud, dims={'BEAR': nBEAR, 'RNGE': nRNGE}, coords={'BEAR': BEAR, 'RNGE': RNGE})
 
         # ... y las coordenadas polares de los puntos:
-        self.RNGE,self.BEAR = RNGE, BEAR
+        self.RNGE, self.BEAR = RNGE, BEAR
 
     def __repr__(self):
     
@@ -808,11 +810,11 @@ def VART_QC(ficheros):
 
     radVel2h, radVel1h, radVel = radiales
 
-    tempDer1h = np.full_like(radVel1h,4)
+    tempDer1h = np.full_like(radVel1h, 4)
 
     tempDer_Thr = 1
 
-    condicion  = np.abs(radVel   - radVel1h) < tempDer_Thr
+    condicion = np.abs(radVel - radVel1h) < tempDer_Thr
     condicion &= np.abs(radVel2h - radVel1h) < tempDer_Thr
 
     tempDer1h[condicion] = 1
@@ -823,7 +825,7 @@ def VART_QC(ficheros):
 
     tempDer1h[np.isnan(radVel1h)] = np.nan
 
-    datasets[1].VART_QC.values[0,0,:] = tempDer1h[:]
+    datasets[1].VART_QC.values[0, 0, :] = tempDer1h[:]
 
     # Redefinimos overall quality variable para incluir los cambios recientes en VART_QC:
     condicion = (datasets[1].variables['VART_QC'] == 1) & \
@@ -835,14 +837,13 @@ def VART_QC(ficheros):
 
     isNan = np.isnan(datasets[1].variables['CSPD_QC'])
 
-    datasets[1].variables['QCflag'].values = np.select([condicion & ~isNan, ~condicion & ~isNan, isNan], [1,4,np.nan])
+    datasets[1].variables['QCflag'].values = np.select([condicion & ~isNan, ~condicion & ~isNan, isNan], [1, 4, np.nan])
 
     datasets[1].to_netcdf('%s_new.nc' % ficheros[1].split('.')[0])
 
 
 def ruv2nc(path_in, path_out, fichero, station):
 
-   # file_in= os.path.join(path_in, fichero)
     file_in = path_in + '/' + fichero
 
     radar = re.findall("[A-Z]{4}", fichero.split('/')[-1])[0]
@@ -866,9 +867,7 @@ def ruv2nc(path_in, path_out, fichero, station):
 
     ficheros = [file_out % (radar, (fecha + timedelta(hours=-i)).strftime('%Y_%m_%d_%H%M')) for i in
                 range(3)]
-    print(ficheros)
     condiciones = [os.path.isfile(fichero) for fichero in ficheros]
-    print(condiciones)
 
     if np.all(condiciones):
         logging.info('Procesando VART_QC en %s' % ficheros[1])
