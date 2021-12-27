@@ -21,8 +21,7 @@ class Ruv2Nc:
         self.station = station
         self.ruv_folder = os.path.join(data_folder, 'radarhf_tmp', 'ruv', self.station)
         self.root_folder = os.path.join(data_folder, 'radarhf/dev/RadarOnRAIA/Radials/v2.2')
-        self.nc_folder = os.path.join(data_folder, 'radarhf_tmp', 'nc')
-
+        self.nc_folder = os.path.join(data_folder, 'radarhf_tmp', 'nc', 'radial')
 
     def check_nc_files(self, thredds):
 
