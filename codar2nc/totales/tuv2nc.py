@@ -627,7 +627,7 @@ class Total_QC_params():
     DataDensityThr = 3
 
 
-class Grid():
+class Grid:
     """
     Clase para la generación de la malla para albergar los datos
 
