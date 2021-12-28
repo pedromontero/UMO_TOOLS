@@ -228,20 +228,17 @@ class Total:
 
         ## Objeto para calcular los ángulos geodésicos:
         self.g = Geodesic()  # Por defecto, cálculos en WGS84 como elipsoide de referencia
-        print(self.g)
 
         puntos = np.column_stack([tablas[0].LOND.values, tablas[0].LATD.values])
 
         self.radialAngles = np.empty((len(tablas[0]), len(self.radares)))
         self.max_ortho = np.empty((len(tablas[0]), 2))
 
-        for i, (SNDX, siteLon, siteLat) in enumerate(tablas[1][['SNDX', 'OLON', 'OLAT']].values):
-            print(i, SNDX, siteLon, siteLat, self.radialAngles[:, i])
-            print(self.g.inverse((siteLon, siteLat), puntos)[:, 1])
         # Usamos el objerto de Cartopy para calcular los ángulos:
         for i, (SNDX, siteLon, siteLat) in enumerate(tablas[1][['SNDX', 'OLON', 'OLAT']].values):
             # self.radialAngles[:,i] = self.g.inverse((siteLon, siteLat), puntos).base[:,1]
             self.radialAngles[:, i] = self.g.inverse((siteLon, siteLat), puntos)[:, 1]
+            print(i, siteLon, siteLat, puntos, self.radialAngles[:, i])
 
         # Angulos en el rango [0,360]
         self.radialAngles += 360
@@ -300,8 +297,8 @@ class Total:
 
         # Necesitamos completar la lista de coordenadas:
         delta = self.TimeStamp - datetime(1950, 1, 1)
-        self.variables['TIME'] = xr.DataArray([delta.days + delta.seconds / 86400], dims={'TIME':1})
-        self.variables['DEPH'] = xr.DataArray([0.], dims={'DEPTH':1})
+        self.variables['TIME'] = xr.DataArray([delta.days + delta.seconds / 86400], dims={'TIME': 1})
+        self.variables['DEPH'] = xr.DataArray([0.], dims={'DEPTH': 1})
 
         for variable in variables:
 
@@ -451,7 +448,7 @@ class Total:
             self.variables[variable].encoding["dtype"] = dtypes[variable]
             self.variables[variable].encoding["_FillValue"] = _FillValues[variable]
 
-    def to_netcdf(self, fichero):
+    def to_netcdf(self, path_out, fichero):
 
         radar = re.findall("[A-Z]{4}", fichero.split('/')[-1])[0]
         fecha = datetime.strptime('%s%s%s%s' % tuple(re.findall("\d+", fichero.split('/')[-1])), '%Y%m%d%H%M')
@@ -609,8 +606,9 @@ class Total:
             dataset[var].attrs['valid_min'] = np.float_(atributos[var]['valid_min']).astype(conversor)
             dataset[var].attrs['valid_max'] = np.float_(atributos[var]['valid_max']).astype(conversor)
 
-        # Escribimos el netCDF:
-        dataset.reset_coords(drop=False).to_netcdf('HFR-Galicia-%s_%s.nc' % (radar, fecha.strftime('%Y_%m_%d_%H%M')))
+        # Write netCDF:
+        file_out = os.path.join(path_out, 'HFR-Galicia-%s_%s.nc')
+        dataset.reset_coords(drop=False).to_netcdf(file_out % (radar, fecha.strftime('%Y_%m_%d_%H%M')))
 
     def __repr__(self):
         return '<Total class>'
@@ -712,18 +710,14 @@ def VART_QC(ficheros):
     datasets[1].to_netcdf('%s_new.nc' % ficheros[1].split('.')[0])
 
 
-if __name__ == '__main__':
+def tuv2nc(path_in, path_out, file):
+    file_in = path_in + '/' + file
 
-    file = r'TOTL_GALI_2021_12_23_0600.tuv'
-    path_in = r'../../datos/radarhf_tmp/tuv'
-    path_out = r'../../datos/radarhf_tmp/nc'
-    fichero = path_in + '/' + file
+    radar = re.findall("[A-Z]{4}", file.split('/')[-1])[0]
 
-    radar = re.findall("[A-Z]{4}", fichero.split('/')[-1])[0]
+    fecha = datetime.strptime('%s%s%s%s' % tuple(re.findall("\d+", file.split('/')[-1])), '%Y%m%d%H%M')
 
-    fecha = datetime.strptime('%s%s%s%s' % tuple(re.findall("\d+", fichero.split('/')[-1])), '%Y%m%d%H%M')
-
-    total = Total(fichero)
+    total = Total(file_in)
 
     # Metemos la tabla en la malla regular del fichero auxiliar:
     grd = Grid('coordenadas.nc')
@@ -733,9 +727,9 @@ if __name__ == '__main__':
     total.QC_control()
 
     # Generamos el fichero NetCDF:
-    total.to_netcdf(fichero)
-
-    ficheros = ['HFR-Galicia-%s_%s.nc' % (radar, (fecha + timedelta(hours=-i)).strftime('%Y_%m_%d_%H%M'))
+    total.to_netcdf(path_out, file)
+    file_out = os.path.join(path_out, 'HFR-Galicia-%s_%s.nc')
+    ficheros = [file_out % (radar, (fecha + timedelta(hours=-i)).strftime('%Y_%m_%d_%H%M'))
                 for i in range(3)]
     condiciones = [os.path.isfile(fichero) for fichero in ficheros]
 
@@ -744,3 +738,10 @@ if __name__ == '__main__':
         VART_QC(ficheros)
     else:
         logging.info('No VART_QC')
+
+
+if __name__ == '__main__':
+    file = r'TOTL_GALI_2021_12_23_0600.tuv'
+    path_in = r'../../datos/radarhf_tmp/tuv'
+    path_out = r'../../datos/radarhf_tmp/nc/total'
+    tuv2nc(path_in, path_out, file)
