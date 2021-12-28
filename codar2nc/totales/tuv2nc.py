@@ -11,7 +11,7 @@ from collections import OrderedDict
 
 from datetime import datetime, timedelta
 
-from cartopy.geodesic import Geodesic
+from pyproj import Geod
 
 from matplotlib import pyplot as plt
 
@@ -109,6 +109,70 @@ for key, value in dtypes.items():
         _FillValues[key] = np.finfo(dtypes[key]).min + 1
     else:
         _FillValues[key] = np.iinfo(dtypes[key]).min + 1
+
+
+def geodesic_inverse(points, endpoints):
+    """
+    cartopy.geodesic.inverse has changed by this function because it is the only function to be used by this program.
+    pyproj is needed.
+
+    From cartopy (PMV: 20211228.)
+    Cartopy. v0.20.1 28-Dec-2021 Met Office. UK. https://github.com/SciTools/cartopy/releases/tag/v0.20.1
+    Solve the inverse geodesic problem.
+
+    Can accept and broadcast length 1 arguments. For example, given a
+    single start point, an array of different endpoints can be supplied to
+    find multiple distances.
+
+    Parameters
+    ----------
+    points: array_like, shape=(n *or* 1, 2)
+        The starting longitude-latitude point(s) from which to travel.
+
+    endpoints: array_like, shape=(n *or* 1, 2)
+        The longitude-latitude point(s) to travel to.
+
+    Returns
+    -------
+    `numpy.ndarray`, shape=(n, 3)
+        The distances, and the (forward) azimuths of the start and end
+        points.
+
+    """
+    geod = Geod(ellps="WGS84")
+
+    # Create numpy arrays from inputs, and ensure correct shape.
+    points = np.array(points, dtype=np.float64)
+    endpoints = np.array(endpoints, dtype=np.float64)
+
+    if points.ndim > 2 or (points.ndim == 2 and points.shape[1] != 2):
+        raise ValueError(
+            f'Expecting input points to be (N, 2), got {points.shape}')
+
+    pts = points.reshape((-1, 2))
+    epts = endpoints.reshape((-1, 2))
+
+    sizes = [pts.shape[0], epts.shape[0]]
+    n_points = max(sizes)
+    if not all(size in [1, n_points] for size in sizes):
+        raise ValueError("Inputs must have common length n or length one.")
+
+    # Broadcast any length 1 arrays to the correct size.
+    if pts.shape[0] == 1:
+        orig_pts = pts
+        pts = np.empty([n_points, 2], dtype=np.float64)
+        pts[:, :] = orig_pts
+
+    if epts.shape[0] == 1:
+        orig_pts = epts
+        epts = np.empty([n_points, 2], dtype=np.float64)
+        epts[:, :] = orig_pts
+
+    start_azims, end_azims, dists = geod.inv(pts[:, 0], pts[:, 1],
+                                                  epts[:, 0], epts[:, 1])
+    # Convert back azimuth to forward azimuth.
+    end_azims += np.where(end_azims > 0, -180, 180)
+    return np.column_stack([dists, start_azims, end_azims])
 
 
 class Total:
@@ -227,7 +291,7 @@ class Total:
         print(self.radares)
 
         ## Objeto para calcular los ángulos geodésicos:
-        self.g = Geodesic()  # Por defecto, cálculos en WGS84 como elipsoide de referencia
+        # self.g = Geodesic()  # Por defecto, cálculos en WGS84 como elipsoide de referencia
 
         puntos = np.column_stack([tablas[0].LOND.values, tablas[0].LATD.values])
 
@@ -237,7 +301,7 @@ class Total:
         # Usamos el objerto de Cartopy para calcular los ángulos:
         for i, (SNDX, siteLon, siteLat) in enumerate(tablas[1][['SNDX', 'OLON', 'OLAT']].values):
             # self.radialAngles[:,i] = self.g.inverse((siteLon, siteLat), puntos).base[:,1]
-            self.radialAngles[:, i] = self.g.inverse((siteLon, siteLat), puntos)[:, 1]
+            self.radialAngles[:, i] = geodesic_inverse((siteLon, siteLat), puntos)[:, 1]
             print(i, siteLon, siteLat, puntos, self.radialAngles[:, i])
 
         # Angulos en el rango [0,360]
@@ -741,7 +805,7 @@ def tuv2nc(path_in, path_out, file):
 
 
 if __name__ == '__main__':
-    file = r'TOTL_GALI_2021_12_23_0600.tuv'
+    file = r'TOTL_GALI_2021_12_23_0900.tuv'
     path_in = r'../../datos/radarhf_tmp/tuv'
     path_out = r'../../datos/radarhf_tmp/nc/total'
     tuv2nc(path_in, path_out, file)
