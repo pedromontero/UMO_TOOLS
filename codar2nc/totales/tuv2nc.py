@@ -513,6 +513,7 @@ class Total:
     def to_netcdf(self, path_out, fichero):
 
         radar = re.findall("[A-Z]{4}", fichero.split('/')[-1])[0]
+
         fecha = datetime.strptime('%s%s%s%s' % tuple(re.findall("\d+", fichero.split('/')[-1])), '%Y%m%d%H%M')
 
         logging.info('Fichero: %s Radar: %s' % (fichero, radar))
@@ -670,7 +671,7 @@ class Total:
 
         # Write netCDF:
         file_out = os.path.join(path_out, 'HFR-Galicia-%s_%s.nc')
-        dataset.reset_coords(drop=False).to_netcdf(file_out % (radar, fecha.strftime('%Y_%m_%d_%H%M')))
+        dataset.reset_coords(drop=False).to_netcdf(file_out % ('Total', fecha.strftime('%Y_%m_%d_%H%M')))
 
     def __repr__(self):
         return '<Total class>'
@@ -791,12 +792,13 @@ def tuv2nc(path_in, path_out, file):
     # Generamos el fichero NetCDF:
     total.to_netcdf(path_out, file)
     file_out = os.path.join(path_out, 'HFR-Galicia-%s_%s.nc')
-    ficheros = [file_out % (radar, (fecha + timedelta(hours=-i)).strftime('%Y_%m_%d_%H%M'))
+    ficheros = [file_out % ('Total', (fecha + timedelta(hours=-i)).strftime('%Y_%m_%d_%H%M'))
                 for i in range(3)]
+
     condiciones = [os.path.isfile(fichero) for fichero in ficheros]
 
     if np.all(condiciones):
-        logging.info('Procesando VART_QC en %s' % ficheros[1])
+        logging.info('Procesando VART_QC en %s' % ficheros[0])
         VART_QC(ficheros)
     else:
         logging.info('No VART_QC')

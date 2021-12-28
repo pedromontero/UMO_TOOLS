@@ -39,21 +39,21 @@ class Tuv2Nc:
                 if check_nc_file(file_previous_hour):
                     shutil.copy(file_previous_hour, self.nc_folder)
                 day_2hour_previous = day + timedelta(hours=-2)
-                file_2hour_previous = os.path.join(self.root_folder, thredds.get_full_total_file_nc( day_2hour_previous))
+                file_2hour_previous = os.path.join(self.root_folder, thredds.get_full_total_file_nc(day_2hour_previous))
                 if check_nc_file(file_2hour_previous):
                     shutil.copy(file_2hour_previous, self.nc_folder)
                 print(f'---vou necesitar {file_previous_hour} e {file_2hour_previous}')
                 try:
                     print(self.tuv_folder, self.nc_folder, file)
                     tuv2nc(self.tuv_folder, self.nc_folder, file)
-                    print(os.path.join(self.nc_folder, self.get_name('Total', day)), full_file)
+                    print(os.path.join(self.nc_folder, thredds.get_name('Total', day)), full_file)
 
                 except KeyError as e:
                     print("Error: KeyError", e)
                 except:
                     print("Another exception")
                 else:
-                    shutil.move(os.path.join(self.nc_folder, self.get_name('Total', day)), full_file)
+                   shutil.move(os.path.join(self.nc_folder, thredds.get_name('Total', day)), full_file)
                 shutil.rmtree(self.nc_folder)
                 os.makedirs(self.nc_folder)
 
