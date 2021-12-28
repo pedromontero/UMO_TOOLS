@@ -288,7 +288,6 @@ class Total:
         tablas[0]['DDENS'] = tablas[0][['S%iCN' % i for i in tablas[1].SNDX]].sum(axis=1).astype(float)
 
         self.radares = tablas[1].SITE.values
-        print(self.radares)
 
         ## Objeto para calcular los ángulos geodésicos:
         # self.g = Geodesic()  # Por defecto, cálculos en WGS84 como elipsoide de referencia
@@ -302,7 +301,6 @@ class Total:
         for i, (SNDX, siteLon, siteLat) in enumerate(tablas[1][['SNDX', 'OLON', 'OLAT']].values):
             # self.radialAngles[:,i] = self.g.inverse((siteLon, siteLat), puntos).base[:,1]
             self.radialAngles[:, i] = geodesic_inverse((siteLon, siteLat), puntos)[:, 1]
-            print(i, siteLon, siteLat, puntos, self.radialAngles[:, i])
 
         # Angulos en el rango [0,360]
         self.radialAngles += 360
