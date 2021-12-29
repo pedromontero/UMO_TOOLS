@@ -623,7 +623,7 @@ class Total:
         dataset.attrs = atributos
 
         # Atributos de las variables:
-        f = open('variables.json')
+        f = open('totales/variables.json')
         atributos = json.loads(f.read())
         f.close()
 
@@ -806,6 +806,6 @@ def tuv2nc(path_in, path_out, file):
 
 if __name__ == '__main__':
     file = r'TOTL_GALI_2021_12_23_0900.tuv'
-    path_in = r'../../datos/radarhf_tmp/tuv'
-    path_out = r'../../datos/radarhf_tmp/nc/total'
+    path_in = r'../datos/radarhf_tmp/tuv/GALI'
+    path_out = r'../datos/radarhf_tmp/nc/total'
     tuv2nc(path_in, path_out, file)
