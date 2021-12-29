@@ -67,39 +67,56 @@ def get_stfp(connection_params_path):
     return sftp
 
 
-def get_radar_files(root_dir):
+def download_files(local_dir, remote_path, sftp, signature):
+    for path, files in sftp_get_filenames_by_extension(sftp, remote_path, signature):
+        for file in files:
+            print(f'Atopei o ficheiro {file} no cartafol {path}')
+            if file.split('.')[-1] == signature:
+                remote_file = path + "/" + file
+                if not os.path.exists(local_dir):
+                    os.makedirs(local_dir)
+                local_file = os.path.join(local_dir, file)
+                if not os.path.exists(local_file):
+                    print(f'Get from {remote_file} to {local_file}')
+                    sftp.get(remote_file, local_file)
+                else:
+                    print(f'{file} xa está baixado')
+                    pass
 
-    root_dir = os.path.join(root_dir, 'radarhf_tmp', 'ruv')
 
+def get_radar_files(remote_root_path, root_dir, signature, stations):
+    root_dir = os.path.join(root_dir, 'radarhf_tmp', signature)
     sftp = get_stfp(r'pass/combine.json')
-    stations = ['LPRO', 'SILL', 'VILA', 'PRIO', 'FIST']
-    remote_root_path =r'/Codar/SeaSonde/Data/RadialSites/Site_'
     for station in stations:
-
         remote_path = remote_root_path + station
-        print(f'remote path = {remote_path}')
-
-        for path, files in sftp_get_filenames_by_extension(sftp, remote_path, 'ruv'):
-            for file in files:
-                print(f'Atopei o ficheiro {file} no cartafol {path}')
-                if file.split('.')[-1] == 'ruv':
-                    remote_file = path + "/" + file
-                    local_dir = os.path.join(root_dir, station)
-                    if not os.path.exists(local_dir):
-                        os.makedirs(local_dir)
-                    local_file = os.path.join(local_dir, file)
-                    if not os.path.exists(local_file):
-                        print(f'Get from {remote_file} to {local_file}')
-                        sftp.get(remote_file, local_file)
-                    else:
-                        print(f'{file} xa está baixado')
-                        pass
+        local_dir = os.path.join(root_dir, station)
+        download_files(local_dir, remote_path, sftp, signature)
     sftp.close()
+
+
+def get_radial_files(root_dir):
+
+    signature = 'ruv'
+    stations = ['LPRO', 'SILL', 'VILA', 'PRIO', 'FIST']
+    remote_root_path = r'/Codar/SeaSonde/Data/RadialSites/Site_'
+    get_radar_files(remote_root_path, root_dir, signature, stations)
+
+
+def get_total_files(root_dir):
+
+    signature = 'tuv'
+    sites = ['GALI']
+    remote_root_path =r'/Codar/SeaSonde/Data/Totals/Totals_'
+    get_radar_files(remote_root_path, root_dir, signature, sites)
+
+
+
 
 
 def main():
     data_folder = r'../datos'
-    get_radar_files(data_folder)
+    get_radial_files(data_folder)
+    get_total_files(data_folder)
 
 
 if __name__ == '__main__':

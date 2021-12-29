@@ -50,7 +50,8 @@ class Ruv2Nc:
                 except KeyError as e:
                     print("Error: KeyError", e)
                 except:
-                    print("Another exception")
+                    print("----------------------------------------------------------------> Another exception!!!!")
+
                 else:
                     shutil.move(os.path.join(self.nc_folder, get_radial_name(site, day)), full_file)
                 shutil.rmtree(self.nc_folder)
@@ -67,6 +68,5 @@ def ruv2thredds(data_folder):
 
 if __name__ == '__main__':
     data_folder = r'../datos/'
-    getradarfiles.get_radar_files(data_folder)
-
+    getradarfiles.get_radial_files(data_folder)
     ruv2thredds(data_folder)
