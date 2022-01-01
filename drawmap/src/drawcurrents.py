@@ -44,12 +44,12 @@ def drawcurrents(coordinates_rank, nx, ny, scale, resolution,
     if style == 'cvector':
         clim = [0., 0.5]
         cs = plt.quiver(x[::nx, ::ny], y[::nx, ::ny], ust[::nx, ::ny], vst[::nx, ::ny], mod[::nx, ::ny], clim=clim, scale=scale)
+
     if style == 'windbarbs':
         clim = [0., 10]
         cs = plt.barbs(x[::nx, ::ny], y[::nx, ::ny], ust[::nx, ::ny], vst[::nx, ::ny], mod[::nx, ::ny], clim=clim,cmap=plt.cm.jet)
 
     if style == 'stream':
-
         print(lons.shape)
         print(x[::, 1])
         print(ust.shape)

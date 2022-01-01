@@ -23,7 +23,7 @@ import os
 from common.readers.reader_factory import read_factory
 from common import read_input
 from common.boundarybox import BoundaryBox
-from .drawcurrents import drawcurrents
+from drawcurrents import drawcurrents
 
 
 
@@ -61,8 +61,18 @@ def main():
 
     # Read input file
     inputs = read_inputs('drawmap.json')
-    draw_map_24(inputs)
+    draw_map_1(inputs, 0)
+    #draw_map_24(inputs)
 
+def draw_map_1(inputs, n ):
+    """draw 1 maps of a day"""
+    draw_map = DrawMap(inputs)
+    draw_map.read_head()
+
+    draw_map.create_title(n)
+    draw_map.reader_uv_by_time(n)
+    print(draw_map.title_full)
+    draw_map.draw()
 
 def draw_map_24(inputs):
     """draw 24+1 maps of a day"""
@@ -138,11 +148,12 @@ class DrawMap:
             v = self.reader.get_variable(self.v_name, n_time)
 
             if len(u.shape) == 3:
-                self.us = u[self.level, 0:self.reader.n_latitudes - 1, 0:self.reader.n_longitudes - 1]
-                self.vs = v[self.level, 0:self.reader.n_latitudes - 1, 0:self.reader.n_longitudes - 1]
+                self.us = u[self.level, :-1, :- 1]
+                self.vs = v[self.level, :-1, :-1]
+
             elif len(u.shape) == 2:
-                self.us = u[0:self.reader.n_latitudes - 1, 0:self.reader.n_longitudes - 1]
-                self.vs = v[0:self.reader.n_latitudes - 1, 0:self.reader.n_longitudes - 1]
+                self.us = u[:-1, :-1]
+                self.vs = v[:-1, :-1]
 
             self.mod = pow((pow(self.us, 2) + pow(self.vs, 2)), .5)
 
@@ -150,7 +161,6 @@ class DrawMap:
         self.reader_uv_by_time(self.time)
 
     def draw(self):
-
         drawcurrents(self.reader.coordinates_rank, self.nx, self.ny, self.scale, self.resolution,
                      self.level, self.time, self.lats, self.lons, self.us, self.vs, self.mod,
                      self.file_out_full, self.title_full, self.style, self.boundary_box)
