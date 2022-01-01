@@ -623,7 +623,7 @@ class Total:
         dataset.attrs = atributos
 
         # Atributos de las variables:
-        f = open('totales/variables.json')
+        f = open('variables.json')
         atributos = json.loads(f.read())
         f.close()
 
@@ -671,6 +671,7 @@ class Total:
 
         # Write netCDF:
         file_out = os.path.join(path_out, 'HFR-Galicia-%s_%s.nc')
+        print((file_out % ('Total', fecha.strftime('%Y_%m_%d_%H%M'))))
         dataset.reset_coords(drop=False).to_netcdf(file_out % ('Total', fecha.strftime('%Y_%m_%d_%H%M')))
 
     def __repr__(self):
@@ -805,7 +806,7 @@ def tuv2nc(path_in, path_out, file):
 
 
 if __name__ == '__main__':
-    file = r'TOTL_GALI_2021_12_23_0900.tuv'
+    file = r'TOTL_GALI_2021_12_29_0100.tuv'
     path_in = r'../datos/radarhf_tmp/tuv/GALI'
     path_out = r'../datos/radarhf_tmp/nc/total'
     tuv2nc(path_in, path_out, file)

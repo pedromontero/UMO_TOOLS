@@ -879,9 +879,9 @@ def ruv2nc(path_in, path_out, fichero, station):
 
 
 if __name__ == '__main__':
-    file = r'RDLm_SILL_2021_12_12_0000.ruv'
+    file = r'RDLm_SILL_2021_12_20_1000.ruv'
     path_in = r'../datos/radarhf_tmp/ruv/SILL'
-    path_out = r'../datos/radarhf_tmp/nc'
+    path_out = r'../datos/radarhf_tmp/nc/radial'
     ruv2nc(path_in, path_out, file, 'SILL')
 
 '''
