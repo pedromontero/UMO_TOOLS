@@ -1,22 +1,22 @@
 {
-    "path_in": "..\\..\\datos\\radarhf_tmp\\nc\\radial\\",
+    "path_in": "..\\..\\datos\\drawmodels\\in",
     "path_out": "..\\..\\datos\\drawmodels\\OUT",
-    "file_in": "HFR-Galicia-LPRO_2021_12_11_1300.nc",
-    "file_out": "HydrodynamicRadial",
+    "file_in": "MOHID_Hydrodynamic_Arousa_20170524_0000.hdf5",
+    "file_out": "Hydrodynamic_Arousa_Sup",
     "nx": 1,
     "ny": 1,
-    "u": "eastward_sea_water_velocity",
-    "v": "northward_sea_water_velocity",
-    "resolution": "h",
+    "u": "eastward_velocity",
+    "v": "northward_velocity",
+    "resolution": "f",
     "scale": 5,
     "n_time": 1,
-    "n_level": 0,
-    "title": "hf radial surface current:",
+    "n_level": 26,
+    "title": "surface current:",
     "style": "cvector",
     "limits": [
-        40.3,
-        42.0,
-        -10,
-        -8.5
+        42.5820,
+        42.6667,
+        -8.9406,
+        -8.7281
     ]
 }
