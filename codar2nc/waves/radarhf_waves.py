@@ -5,7 +5,7 @@ import pandas as pd
 
 class Wave:
     """
-    Class for reading and processing wls (waves) files from a Codar Combine. PMV
+    Class for reading and processing wls (waves) files from a Codar Combine.
     """
 
     def __init__(self, file_wls):
