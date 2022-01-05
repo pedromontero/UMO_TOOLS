@@ -2,9 +2,10 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 
+
 class Wave:
     """
-    Class for reading and processing wls (waves) files from a Codar Combine.
+    Class for reading and processing wls (waves) files from a Codar Combine. PMV
     """
 
     def __init__(self, file_wls):
