@@ -1,6 +1,10 @@
 from datetime import datetime
+import json
+from collections import OrderedDict
+import psycopg2
 import numpy as np
 import pandas as pd
+
 
 class Wave:
     """
@@ -69,7 +73,7 @@ class Wave:
     def get_last_row(self, rcell):
 
         if rcell >= self.range_max:
-            print(f'Range Cell Index from 0 to {self.range_max-1}')
+            print(f'Range Cell Index from 0 to {self.range_max - 1}')
             return None
         return self.tablas[rcell].tail(1)
 
@@ -79,11 +83,10 @@ class Wave:
 
     def get_time_by_index(self, rcell, row_index):
         if self.check_row_index_is_in_range(rcell, row_index):
-            row = self.tablas[rcell].iloc[row_index-1:row_index]
+            row = self.tablas[rcell].iloc[row_index - 1:row_index]
             return self.get_time(row)
 
-
-    def get_time(self,  row):
+    def get_time(self, row):
         year = row['TYRS'].values[0]
         month = row['TMON'].values[0]
         day = row['TDAY'].values[0]
@@ -94,7 +97,7 @@ class Wave:
 
     def get_wave_values_by_index(self, rcell, row_index):
         if self.check_row_index_is_in_range(rcell, row_index):
-            row = self.tablas[rcell].iloc[row_index-1:row_index]
+            row = self.tablas[rcell].iloc[row_index - 1:row_index]
             return self.get_wave_values(row)
 
     def get_last_wave_values(self, rcell):
@@ -115,18 +118,85 @@ class Wave:
         return True
 
 
+def read_connection(input_file):
+    try:
+        with open(input_file, 'r') as f:
+            return json.load(f, object_pairs_hook=OrderedDict)
+    except FileNotFoundError:
+        print(f'File not found: {input_file} ')
+        if input('Do you want to create one (y/n)?') == 'n':
+            quit()
+
+
+def get_db_connection(db_json):
+    database_data = read_connection(db_json)
+    connection_string = 'host={0} port={1} dbname={2} user={3} password={4}'.format(database_data['host'],
+                                                                                    database_data['port'],
+                                                                                    database_data['dbname'],
+                                                                                    database_data['user'],
+                                                                                    database_data['password'])
+    try:
+        return psycopg2.connect(connection_string)
+    except psycopg2.OperationalError as e:
+        print('CAUTION: ERROR WHEN CONNECTING TO {0}'.format(database_data['host']))
+
+
+def convert_into_dictionary(list_of_tuples):
+    dictionary = {}
+    for a, b in list_of_tuples:
+        dictionary.setdefault(a, b)
+    return dictionary
+
+
 def wave2db(path, file_in):
+
+    site_name = path.split('/')[-1]
+
+    db_json_file = r'../pass/svr_dev_1.json'
     full_path_file = path + '/' + file_in
     wave = Wave(full_path_file)
+
+    connection = get_db_connection(db_json_file)
+    cursor = connection.cursor()
+    sql = '''SELECT code, pk FROM  waves.sites ORDER BY pk ASC'''
+    cursor.execute(sql)
+    id_sites = convert_into_dictionary(cursor.fetchall())
+
+    id_site = id_sites[site_name]
     for rcell in range(wave.range_max):
-        for ntimes in range(1, wave.tablas[rcell].shape[0]+1):
+        for ntimes in range(1, wave.tablas[rcell].shape[0] + 1):
             print(f'Range = {rcell}: date: {wave.get_time_by_index(rcell, ntimes)} ---> '
                   f'{wave.get_wave_values_by_index(rcell, ntimes)}')
+            date_sql = wave.get_time_by_index(rcell, ntimes).strftime('%Y-%m-%d %H:%M:00.00')
+            print(date_sql)
+            sql = '''SELECT * FROM  waves.values WHERE datetime = %s  AND fk_site = %s AND fk_range = %s'''
+            params = (date_sql, id_site, rcell+1 )
+            cursor.execute(sql, params)
+            print(cursor.fetchall())
+            existe = bool(cursor.rowcount)
 
+            print('vamos----> ', existe)
+            try:
+                if not existe:
+                    height, period, direction = wave.get_wave_values_by_index(rcell, ntimes)
+                    sql = '''INSERT INTO waves.values(fk_site, fk_range, datetime, height, period, direction) 
+                    VALUES(%s, %s, %s, %s, %s, %s)'''
+                    params = (id_site, rcell+1, date_sql, height, period, direction)
+                    cursor.execute(sql, params)
+                    connection.commit()
+
+                else:
+                    print(f'VALUES: {params} already exists')
+            except Exception as err:
+                print(err)
+
+
+    cursor.close()
+    connection.close()
 
 
 if __name__ == '__main__':
-    file = r'WVLM_VILA_2021_11_01_0000.wls'
-    path_in = r'../../datos/radarhf_tmp/wls/VILA'
+    file = r'WVLM_SILL_2021_11_01_0000.wls'
+    path_in = r'../../datos/radarhf_tmp/wls/SILL'
 
     wave2db(path_in, file)
