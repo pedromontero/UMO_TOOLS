@@ -1,0 +1,6 @@
+{
+  "path_in": "..\\..\\datos\\UI\\in",
+  "path_out": "..\\..\\datos\\UI\\out",
+  "file_in": "HFR-Galicia-Total_2021_12_19_0700.nc",
+  "file_out": "HFR-Galicia-UI_2021_12_19_0700.nc"
+}

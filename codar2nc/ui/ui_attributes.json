@@ -1,0 +1,9 @@
+{
+  "valid_min": -1000000,
+  "valid_max": 10000000,
+  "standard_name": "upwelling_index",
+  "long_name": "Upwelling Index",
+  "units": "m3 s-1 km-1",
+  "data_mode": "R",
+  "coordinates": "TIME DEPTH LATITUDE LONGITUDE"
+}
