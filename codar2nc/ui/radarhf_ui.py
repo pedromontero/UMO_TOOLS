@@ -20,21 +20,51 @@ radarhf_ui.py
 import os
 import json
 import math
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone, date, time
 import pandas as pd
 import xarray as xr
 import numpy as np
 from common import read_input
 
+from codar2nc.create_dir_structure import FolderTree
 
-def read_inputs(input_file):
-    """Read keywords for options"""
-    input_keys = ['path_in',
-                  'file_in',
-                  'path_out'
-                  'file_out'
-                  ]
-    return read_input(input_file, input_keys)
+
+def ui2thredds(number_days=5, end_date=None):
+
+    root_folder = r'../../datos/radarhf/'
+    totals_folder = r'dev/RadarOnRAIA/Totals/v2.2'
+    ui_folder = r'dev/RadarOnRAIA/UI'
+    thredds_folder = os.path.join(root_folder, totals_folder)
+    thredds = FolderTree(thredds_folder)
+
+    date_list = get_list_dates(end_date, number_days)
+
+    for date in date_list:
+        file_nc = os.path.join(thredds.root, thredds.get_full_total_file_nc(date))
+        if check_nc_file(file_nc):
+
+            file_out = date.strftime('HFR-Galicia-UI_%Y_%m_%d_%H00.nc')
+            nc_file_out = os.path.join(root_folder, ui_folder, file_out)
+            print(date, nc_file_out)
+            radarhf_ui(file_nc, nc_file_out)
+
+
+def check_nc_file(full_file):
+    if os.path.isfile(full_file):
+        print(f'existe {full_file} ')
+        return True
+    else:
+        print(f'No existe {full_file}')
+        return False
+
+
+def get_list_dates(end_date, number_days):
+    if end_date is None:
+        end_date = date.today()
+    end_date = datetime.combine(end_date + timedelta(1), time(0))
+    date_list = [end_date - timedelta(hours=hours) for hours in range(number_days * 24)]
+
+    return date_list
 
 
 def radarhf_ui(file_in, file_out):
@@ -58,6 +88,7 @@ class UI:
         self.global_attributes_dictionary = self.read_attributes('ui_global_attributes.json')
         self.dataset_out = None
         self.array = None
+        self.dtype = 'float32'
         self.time_stamp = (pd.Timestamp(self.dataset_in['TIME'].values[0]))
 
     @staticmethod
@@ -77,15 +108,22 @@ class UI:
         return ds
 
     def write_attributes(self):
-        for key, values in self.attributes_dictionary.items():
-            self.array.attrs[key] = values
+        for key, value in self.attributes_dictionary.items():
+            if isinstance(value, float):
+                self.array.attrs[key] = np.float32(value)
+            else:
+                self.array.attrs[key] = value
+
+        self.array.encoding["scale_factor"] = np.float32(1)
+        self.array.encoding["add_offset"] = np.float32(0)
+        self.array.encoding["dtype"] = self.dtype
+        self.array.encoding["_FillValue"] = "NaN"
 
     def write_global_attributes(self):
         for key, values in self.global_attributes_dictionary.items():
             self.dataset_out.attrs[key] = values
 
         self.dataset_out.attrs['id'] = 'HFR-Galicia-IU_%sZ' % self.time_stamp.isoformat()
-
         self.dataset_out.attrs['time_coverage_start'] = '%sZ' % (self.time_stamp - timedelta(minutes=30)).isoformat()
         self.dataset_out.attrs['time_coverage_end'] = '%sZ' % (self.time_stamp + timedelta(minutes=30)).isoformat()
 
@@ -94,7 +132,8 @@ class UI:
         self.dataset_out.attrs['metadata_date_stamp'] = '%sZ' % now_utc
         self.dataset_out.attrs['date_modified'] = '%sZ' % now_utc
         self.dataset_out.attrs['date_issued'] = '%sZ' % now_utc
-        self.dataset_out.attrs['history'] = f'{self.time_stamp.isoformat()}Z data collected. {now_utc}Z netCDF file created'
+        self.dataset_out.attrs['history'] = f'{self.time_stamp.isoformat()}Z data collected.' \
+                                            f' {now_utc}Z netCDF file created'
 
     def calculate_ui(self):
         u = self.dataset_in['EWCT'].values
@@ -107,28 +146,47 @@ class UI:
         # sin_lat42 = 0.669131
         sin_lat = np.sin(math.pi*latitudes/180.)
         f = 2 * omega * sin_lat
-        f_stack = np.transpose(f*np.ones((47, 81)))
+        f_stack = np.transpose(f*np.ones((u.shape[3], u.shape[2])))
         upwelling_index = -(roa * cd * (v * ((u * u + v * v) ** 0.5) * 3000000)) / (f_stack * ro)
         return upwelling_index
 
     def create_ui(self, file_out):
         upwelling_index = self.calculate_ui()
-        dtype_ui = "float32"
-        conversor = np.dtype(dtype_ui)
+        conversor = np.dtype(self.dtype)
         upwelling_index = upwelling_index.astype(conversor)
 
         self.array = xr.DataArray(upwelling_index, dims=['TIME', 'DEPTH', 'LATITUDE', 'LONGITUDE'])
         self.write_attributes()
+
         self.dataset_out = xr.Dataset({'TIME': self.dataset_in['TIME'],
-                                  'DEPH': self.dataset_in['DEPH'],
-                                  'LATITUDE': self.dataset_in['LATITUDE'],
-                                  'LONGITUDE': self.dataset_in['LONGITUDE'],
-                                  'UI': self.array})
+                                       'DEPH': self.dataset_in['DEPH'],
+                                       'LATITUDE': self.dataset_in['LATITUDE'],
+                                       'LONGITUDE': self.dataset_in['LONGITUDE'],
+                                       'crs': self.dataset_in['crs'],
+                                        'UI': self.array})
         self.write_global_attributes()
+
+        del self.dataset_out['TIME'].attrs['ancillary_variables']
+        del self.dataset_out['DEPH'].attrs['ancillary_variables']
+        del self.dataset_out['LATITUDE'].attrs['ancillary_variables']
+        del self.dataset_out['LONGITUDE'].attrs['ancillary_variables']
+
         self.dataset_out.reset_coords(drop=False).to_netcdf(file_out)
 
 
+def read_inputs(input_file):
+    """Read keywords for options"""
+    input_keys = ['path_in',
+                  'file_in',
+                  'path_out'
+                  'file_out'
+                  ]
+    return read_input(input_file, input_keys)
+
+
 if __name__ == '__main__':
+    ui2thredds(end_date=date(2021, 12, 29))
+    quit()
     # Read input file
     inputs = read_inputs('radarhf_ui.json')
     nc_file_in = os.path.join(inputs['path_in'], inputs['file_in'])
