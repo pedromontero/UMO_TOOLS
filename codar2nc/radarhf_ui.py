@@ -24,7 +24,7 @@ from datetime import datetime, timedelta, timezone, date, time
 import pandas as pd
 import xarray as xr
 import numpy as np
-from common import read_input
+# from common import read_input
 
 from codar2nc.create_dir_structure import FolderTree
 
@@ -51,10 +51,10 @@ def ui2thredds(number_days=5, end_date=None):
 
 def check_nc_file(full_file):
     if os.path.isfile(full_file):
-        print(f'existe {full_file} ')
+        #print(f'existe {full_file} ')
         return True
     else:
-        print(f'No existe {full_file}')
+        #print(f'No existe {full_file}')
         return False
 
 
@@ -174,21 +174,21 @@ class UI:
         self.dataset_out.reset_coords(drop=False).to_netcdf(file_out)
 
 
-def read_inputs(input_file):
-    """Read keywords for options"""
-    input_keys = ['path_in',
-                  'file_in',
-                  'path_out'
-                  'file_out'
-                  ]
-    return read_input(input_file, input_keys)
+#def read_inputs(input_file):
+#    """Read keywords for options"""
+#    input_keys = ['path_in',
+#                  'file_in',
+#                  'path_out'
+#                  'file_out'
+#                  ]
+#    return read_input(input_file, input_keys)
 
 
 if __name__ == '__main__':
-    ui2thredds(end_date=date(2021, 12, 29))
-    quit()
+    ui2thredds()
+
     # Read input file
-    inputs = read_inputs('radarhf_ui.json')
-    nc_file_in = os.path.join(inputs['path_in'], inputs['file_in'])
-    nc_file_out = os.path.join(inputs['path_out'], inputs['file_out'])
-    radarhf_ui(nc_file_in, nc_file_out)
+    # inputs = read_inputs('radarhf_ui.json')
+    # nc_file_in = os.path.join(inputs['path_in'], inputs['file_in'])
+    # nc_file_out = os.path.join(inputs['path_out'], inputs['file_out'])
+    # radarhf_ui(nc_file_in, nc_file_out)
