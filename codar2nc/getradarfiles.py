@@ -67,8 +67,13 @@ def get_stfp(connection_params_path):
     return sftp
 
 
-def download_files(local_dir, remote_path, sftp, signature):
+def download_files(local_dir, remote_path, sftp, signature, number_files):
     for path, files in sftp_get_filenames_by_extension(sftp, remote_path, signature):
+        if number_files is None:
+            files = files
+        else:
+            files = files[-1*number_files:]
+            print(files)
         for file in files:
             print(f'Atopei o ficheiro {file} no cartafol {path}')
             if file.split('.')[-1] == signature:
@@ -76,21 +81,21 @@ def download_files(local_dir, remote_path, sftp, signature):
                 if not os.path.exists(local_dir):
                     os.makedirs(local_dir)
                 local_file = os.path.join(local_dir, file)
-                if not os.path.exists(local_file):
-                    print(f'Get from {remote_file} to {local_file}')
-                    sftp.get(remote_file, local_file)
-                else:
+                if os.path.exists(local_file) and number_files is  None:
                     print(f'{file} xa está baixado')
                     pass
+                else:
+                    print(f'Get from {remote_file} to {local_file}')
+                    sftp.get(remote_file, local_file)
 
 
-def get_radar_files(remote_root_path, root_dir, signature, stations):
+def get_radar_files(remote_root_path, root_dir, signature, stations, number_of_last_files=None):
     root_dir = os.path.join(root_dir, 'radarhf_tmp', signature)
     sftp = get_stfp(r'pass/combine.json')
     for station in stations:
         remote_path = remote_root_path + station
         local_dir = os.path.join(root_dir, station)
-        download_files(local_dir, remote_path, sftp, signature)
+        download_files(local_dir, remote_path, sftp, signature, number_of_last_files)
     sftp.close()
 
 
@@ -110,13 +115,18 @@ def get_total_files(root_dir):
     get_radar_files(remote_root_path, root_dir, signature, sites)
 
 
-
+def get_waves_files(root_dir, number_of_last_files=2):
+    signature = 'wls'
+    stations = ['SILL', 'PRIO']
+    remote_root_path = r'/Codar/SeaSonde/Data/Waves/Site_'
+    get_radar_files(remote_root_path, root_dir, signature, stations, number_of_last_files)
 
 
 def main():
     data_folder = r'../datos'
+    get_waves_files(data_folder)
     get_radial_files(data_folder)
-    get_total_files(data_folder)
+    # get_total_files(data_folder)
 
 
 if __name__ == '__main__':
