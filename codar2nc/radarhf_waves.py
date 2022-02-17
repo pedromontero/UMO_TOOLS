@@ -148,11 +148,9 @@ def convert_into_dictionary(list_of_tuples):
     return dictionary
 
 
-def wave2db(path, file_in):
+def wave2db(site_name, path, file_in):
 
-    site_name = path.split('/')[-1]
-
-    db_json_file = r'../pass/svr_dev_1.json'
+    db_json_file = r'./pass/svr_dev_1.json'
     full_path_file = path + '/' + file_in
     wave = Wave(full_path_file)
 
@@ -190,13 +188,12 @@ def wave2db(path, file_in):
             except Exception as err:
                 print(err)
 
-
     cursor.close()
     connection.close()
 
 
 if __name__ == '__main__':
-    file = r'WVLM_SILL_2021_11_01_0000.wls'
-    path_in = r'../../datos/radarhf_tmp/wls/SILL'
+    file = r'WVLM_PRIO_2022_02_01_0000.wls'
+    path_in = r'../../datos/radarhf_tmp/wls/PRIO'
 
-    wave2db(path_in, file)
+    wave2db('PRIO', path_in, file)
