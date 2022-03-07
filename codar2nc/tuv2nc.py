@@ -197,28 +197,28 @@ class Total:
         """
 
         # El archivo tiene que ser abierto como binary:
-        contenido = [linea.decode('utf-8').replace('%', '').replace('\n', '') for linea in
+        content = [linea.decode('utf-8').replace('%', '').replace('\n', '') for linea in
                      open(fichero, 'rb').readlines() if '%%' not in str(linea)]
 
-        metadatos = [linea for linea in contenido if 'Table' not in linea]
-        metadatos = dict([(linea.split(':')[0], linea.split(':')[1]) for linea in metadatos if ':' in str(linea)])
+        metadata = [linea for linea in content if 'Table' not in linea]
+        metadata = dict([(linea.split(':')[0], linea.split(':')[1]) for linea in metadata if ':' in str(linea)])
 
         # Parseamos algunos metadatos que necesitaremos:
         self.GridSpacing = 6.0
-        self.TimeStamp = datetime.strptime(metadatos['TimeStamp'], ' %Y %m %d %H %M %S')
+        self.TimeStamp = datetime.strptime(metadata['TimeStamp'], ' %Y %m %d %H %M %S')
 
-        # Líneas inicial y final de las tablas:
-        starts = np.arange(len(contenido))[['TableStart' in linea for linea in contenido]]
-        ends = np.arange(len(contenido))[['TableEnd' in linea for linea in contenido]]
+        # Líneas inicial y final de las tables:
+        starts = np.arange(len(content))[['TableStart' in linea for linea in content]]
+        ends = np.arange(len(content))[['TableEnd' in linea for linea in content]]
         lengths = ends - starts - 1
 
         # Linea que contiene el header:
-        columns = np.arange(len(contenido))[['TableColumnTypes' in linea for linea in contenido]]
+        columns = np.arange(len(content))[['TableColumnTypes' in linea for linea in content]]
 
-        tablas = []
+        tables = []
 
         # Aquí podemos aplicar los cambios en los nombres de las variables:
-        headers = [contenido[indice].split(':')[1].split() for indice in columns]
+        headers = [content[indice].split(':')[1].split() for indice in columns]
 
         # Solo estas columnas son fijas:
         header_comun = ['LOND', 'LATD', 'EWCT', 'NSCT', 'OWTR_QC', 'EWCS', 'NSCS', 'CCOV', 'XDST', 'YDST', 'RNGE',
@@ -233,7 +233,7 @@ class Total:
                 start = starts[i] + 1
                 end = ends[i]
 
-                tablas.append(pd.DataFrame(np.array([linea.replace('"', '').split() for linea in contenido[start:end]]),
+                tables.append(pd.DataFrame(np.array([linea.replace('"', '').split() for linea in content[start:end]]),
                                            columns=headers[i]))
 
         tipos = {'LOND': np.dtype(float),
@@ -255,7 +255,7 @@ class Total:
         for i in range(1, len(headers[0]) - len(header_comun) + 1):
             tipos['S%iCN' % i] = np.dtype(int)
 
-        tablas[0] = tablas[0].astype(tipos)
+        tables[0] = tables[0].astype(tipos)
 
         tipos = {'SNDX': np.dtype(int),
                  'SITE': np.dtype('U4'),
@@ -273,32 +273,32 @@ class Total:
                  'PATH': np.dtype('U72'),
                  'UUID': np.dtype('U36')}
 
-        tablas[1] = tablas[1].astype(tipos)
+        tables[1] = tables[1].astype(tipos)
 
         # Factores de conversión necesarios para algunas columnas de la tabla:
-        tablas[0].EWCT /= 100.
-        tablas[0].NSCT /= 100.
-        tablas[0].EWCS = 0.01 * np.sqrt(tablas[0].EWCS)
-        tablas[0].NSCS = 0.01 * np.sqrt(tablas[0].NSCS)
-        tablas[0].CCOV *= 0.0001
+        tables[0].EWCT /= 100.
+        tables[0].NSCT /= 100.
+        tables[0].EWCS = 0.01 * np.sqrt(tables[0].EWCS)
+        tables[0].NSCS = 0.01 * np.sqrt(tables[0].NSCS)
+        tables[0].CCOV *= 0.0001
 
-        # Variables derivadas de columnas de las tablas:
+        # Variables derivadas de columnas de las tables:
 
         ## DDENS depende del número de radares activos:
-        tablas[0]['DDENS'] = tablas[0][['S%iCN' % i for i in tablas[1].SNDX]].sum(axis=1).astype(float)
+        tables[0]['DDENS'] = tables[0][['S%iCN' % i for i in tables[1].SNDX]].sum(axis=1).astype(float)
 
-        self.radares = tablas[1].SITE.values
+        self.radares = tables[1].SITE.values
 
         ## Objeto para calcular los ángulos geodésicos:
         # self.g = Geodesic()  # Por defecto, cálculos en WGS84 como elipsoide de referencia
 
-        puntos = np.column_stack([tablas[0].LOND.values, tablas[0].LATD.values])
+        puntos = np.column_stack([tables[0].LOND.values, tables[0].LATD.values])
 
-        self.radialAngles = np.empty((len(tablas[0]), len(self.radares)))
-        self.max_ortho = np.empty((len(tablas[0]), 2))
+        self.radialAngles = np.empty((len(tables[0]), len(self.radares)))
+        self.max_ortho = np.empty((len(tables[0]), 2))
 
         # Usamos el objerto de Cartopy para calcular los ángulos:
-        for i, (SNDX, siteLon, siteLat) in enumerate(tablas[1][['SNDX', 'OLON', 'OLAT']].values):
+        for i, (SNDX, siteLon, siteLat) in enumerate(tables[1][['SNDX', 'OLON', 'OLAT']].values):
             # self.radialAngles[:,i] = self.g.inverse((siteLon, siteLat), puntos).base[:,1]
             self.radialAngles[:, i] = geodesic_inverse((siteLon, siteLat), puntos)[:, 1]
 
@@ -317,25 +317,25 @@ class Total:
 
             self.max_ortho[i] = angulos[X[t == t.min()]]
 
-        GDOP = np.empty(len(tablas[0]))
+        GDOP = np.empty(len(tables[0]))
 
         # Calculamos el GDOP:
         for i, angulos in enumerate(self.max_ortho):
             A = np.array([np.cos(deg2rad * angulos), np.sin(deg2rad * angulos)])
             GDOP[i] = np.sqrt(np.linalg.inv(np.dot(A, A.T)).trace())
 
-        tablas[0]['GDOP'] = GDOP
+        tables[0]['GDOP'] = GDOP
 
         # Clean Totals:
         err = np.sqrt(
-            tablas[0].EWCT ** 2 + tablas[0].NSCT ** 2) > Total_QC_params.VelThr  # Valores posibles del error [0,1]
+            tables[0].EWCT ** 2 + tables[0].NSCT ** 2) > Total_QC_params.VelThr  # Valores posibles del error [0,1]
         err += 2 * (GDOP > Total_QC_params.GDOPThr)  # Valores posibles del error [0,2]
         # Por lo tanto este codigo de error puede tener los valores [0,1,2,3]
 
-        tablas[0]['err'] = err.astype('float')
+        tables[0]['err'] = err.astype('float')
 
-        self.metadatos = metadatos
-        self.tablas = tablas
+        self.metadatos = metadata
+        self.tablas = tables
 
     def to_grid(self, grid):
 
