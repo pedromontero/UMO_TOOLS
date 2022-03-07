@@ -1,5 +1,5 @@
 {
-    "Conventions": "CF-1.6 Copernicus-InSituTAC-FormatManual-1.41 Copernicus-InSituTAC-SRD-1.5 Copernicus-InSituTAC-ParametersList-3.2.0",
+    "Conventions": "CF-1.6 Copernicus-InSituTAC-FormatManual-1.42 Copernicus-InSituTAC-SRD-1.5 Copernicus-InSituTAC-ParametersList-3.2.1",
     "DoA_estimation_method": "LPRO: Direction Finding; PRIO: Direction Finding; SILL: Direction Finding; VILA: Direction Finding",
     "acknowledgment": "Galicia HF Radar Network has been established within RAIA and MyCoast projects.",
     "area": "NW Spain",
