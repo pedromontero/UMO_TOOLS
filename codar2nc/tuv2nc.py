@@ -3,6 +3,7 @@
 import numpy as np
 import pandas as pd
 
+import netCDF4
 import xarray as xr
 
 import re
@@ -651,14 +652,14 @@ class Total:
 
         # Completamos coordenadas y dimensiones que xArray procesa de forma automática una vez creado el xr.
         # Dataset a partir del diccionario de variables:
-        for var in ['TIME', 'DEPH']:
+        for var in ['LONGITUDE', 'LATITUDE','TIME']:
             dataset[var].encoding["dtype"] = dtypes[var]
             dataset[var].encoding["_FillValue"] = None
             dataset[var].attrs = atributos[var]
 
-        for var in ['LONGITUDE', 'LATITUDE']:
-            dataset[var].encoding["dtype"] = dtypes[var]
-            dataset[var].encoding["_FillValue"] = _FillValues[var]
+        for var in ['DEPH']:
+            dataset[var].encoding["dtype"] = 'float32'
+            dataset[var].encoding["_FillValue"] = netCDF4.default_fillvals['f4'] # _FillValues[var]
             dataset[var].attrs = atributos[var]
 
         for var in ['DEPH', 'LONGITUDE', 'LATITUDE']:
