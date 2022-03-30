@@ -111,6 +111,7 @@ for key, value in dtypes.items():
         _FillValues[key] = np.iinfo(dtypes[key]).min + 1
 
 
+
 def geodesic_inverse(points, endpoints):
     """
     cartopy.geodesic.inverse has changed by this function because it is the only function to be used by this program.
@@ -186,7 +187,7 @@ class Total:
     -------
     """
 
-    def __init__(self, fichero):
+    def __init__(self, tuv_file):
 
         """
         Constructor
@@ -196,43 +197,41 @@ class Total:
         fichero: Fichero .tuv con las velocidades radiales
         """
 
-        # El archivo tiene que ser abierto como binary:
+        # File must be open as binary:
         content = [linea.decode('utf-8').replace('%', '').replace('\n', '') for linea in
-                     open(fichero, 'rb').readlines() if '%%' not in str(linea)]
+                   open(tuv_file, 'rb').readlines() if '%%' not in str(linea)]
 
         metadata = [linea for linea in content if 'Table' not in linea]
         metadata = dict([(linea.split(':')[0], linea.split(':')[1]) for linea in metadata if ':' in str(linea)])
 
-        # Parseamos algunos metadatos que necesitaremos:
-        self.GridSpacing = 6.0
+        # Some needed parameters parsed :
+        self.GridSpacing = 6.0  # TODO: must we take it from a config file?
         self.TimeStamp = datetime.strptime(metadata['TimeStamp'], ' %Y %m %d %H %M %S')
 
-        # Líneas inicial y final de las tables:
+        # Start and end lines from the tables:
         starts = np.arange(len(content))[['TableStart' in linea for linea in content]]
         ends = np.arange(len(content))[['TableEnd' in linea for linea in content]]
         lengths = ends - starts - 1
 
-        # Linea que contiene el header:
-        columns = np.arange(len(content))[['TableColumnTypes' in linea for linea in content]]
+        # Line with header:
+        columns = np.arange(len(content))[['TableColumnTypes' in line for line in content]]
 
         tables = []
 
         # Aquí podemos aplicar los cambios en los nombres de las variables:
-        headers = [content[indice].split(':')[1].split() for indice in columns]
+        headers = [content[index].split(':')[1].split() for index in columns]
 
         # Solo estas columnas son fijas:
-        header_comun = ['LOND', 'LATD', 'EWCT', 'NSCT', 'OWTR_QC', 'EWCS', 'NSCS', 'CCOV', 'XDST', 'YDST', 'RNGE',
+        header_common = ['LOND', 'LATD', 'EWCT', 'NSCT', 'OWTR_QC', 'EWCS', 'NSCS', 'CCOV', 'XDST', 'YDST', 'RNGE',
                         'BEAR', 'RDVA', 'DRVA']
-        ## Originales:   LOND   LATD   VELU   VELV   VFLG      UQAL   VQAL   CQAL   XDST   YDST   RNGE   BEAR   VELO   HEAD
+        # Originales:
+        # LOND   LATD   VELU   VELV   VFLG      UQAL   VQAL   CQAL   XDST   YDST   RNGE   BEAR   VELO   HEAD
 
-        headers[0][0:14] = header_comun
-
+        headers[0][0:14] = header_common
         for i in range(2):
-
             if lengths[i] != 0:
                 start = starts[i] + 1
                 end = ends[i]
-
                 tables.append(pd.DataFrame(np.array([linea.replace('"', '').split() for linea in content[start:end]]),
                                            columns=headers[i]))
 
@@ -252,7 +251,7 @@ class Total:
                  'DRVA': np.dtype(float)}
 
         # Hay que gestionar el número variable de columnas del final:
-        for i in range(1, len(headers[0]) - len(header_comun) + 1):
+        for i in range(1, len(headers[0]) - len(header_common) + 1):
             tipos['S%iCN' % i] = np.dtype(int)
 
         tables[0] = tables[0].astype(tipos)
@@ -595,7 +594,8 @@ class Total:
         f.close()
 
         # Creamos algunos atributos:
-        atributos['id'] = 'HFR-Galicia-Total_%sZ' % self.TimeStamp.isoformat()
+        #atributos['id'] = 'HFR-Galicia-Total_%sZ' % self.TimeStamp.isoformat()
+        atributos['id'] = atributos['id'] + self.TimeStamp.strftime("%Y%m%d")
 
         atributos['time_coverage_start'] = '%sZ' % (self.TimeStamp - timedelta(minutes=30)).isoformat()
         atributos['time_coverage_end'] = '%sZ' % (self.TimeStamp + timedelta(minutes=30)).isoformat()

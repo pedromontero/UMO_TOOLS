@@ -164,7 +164,6 @@ class DrawMap:
         drawcurrents(self.reader.coordinates_rank, self.nx, self.ny, self.scale, self.resolution,
                      self.level, self.time, self.lats, self.lons, self.us, self.vs, self.mod,
                      self.file_out_full, self.title_full, self.style, self.boundary_box)
-
-
+        
 if __name__ == '__main__':
     main()

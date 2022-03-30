@@ -42,7 +42,7 @@
     "grid_resolution": "6",
     "history": "2020-10-01T18:00:00Z data collected. 2021-03-04T11:11:49Z netCDF file created and sent to European HFR Node",
     "ices_platform_code": "",
-    "id": "HFR-Galicia-Total_2020-10-01T18:00:00Z",
+    "id": "GL_TV_HF_HFR-Galicia-Total_",
     "institution": "Instituto Hidrografico; PUERTOS DEL ESTADO; INTECMAR - Xunta de Galicia",
     "institution_edmo_code": "590 2751 4841 ",
     "institution_references": "http://www.hidrografico.pt http://www.puertos.es http://www.marnaraia.org",
