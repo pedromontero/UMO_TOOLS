@@ -528,28 +528,30 @@ class Total:
         SDN_EDMO_CODEs = {'PRIO': 4841, 'SILL': 2751, 'VILA': 4841, 'LPRO': 590, 'FIST': 2751}
         codigos = np.array([SDN_EDMO_CODEs[site] for site in self.tablas[1].SITE], dtype=np.int16)
         codigos = np.expand_dims(codigos, axis=0)
-        self.variables['SDN_EDMO_CODE'] = xr.DataArray(codigos, dims={'TIME': 1, 'MAXINST': num_sites})
+       # self.variables['SDN_EDMO_CODE'] = xr.DataArray(codigos, dims={'TIME': 1, 'MAXINST': num_sites})
+
 
         cadena = b'HFR-Galicia'
         n = len(cadena)
-        self.variables['SDN_CRUISE'] = xr.DataArray(np.array([cadena]), dims={'TIME': 1})
+        #self.variables['SDN_CRUISE'] = xr.DataArray(np.array([cadena]), dims={'TIME': 1})
+
 
         # cadena = ('HFR-Galicia-%s' % radar).encode()
         cadena = b'HFR-Galicia-Total'
         n = len(cadena)
-        self.variables['SDN_STATION'] = xr.DataArray(np.array([cadena]), dims={'TIME': 1})
+       # self.variables['SDN_STATION'] = xr.DataArray(np.array([cadena]), dims={'TIME': 1})
 
         cadena = ('HFR-Galicia-Total_%sZ' % (self.TimeStamp.isoformat())).encode()
         n = len(cadena)
-        self.variables['SDN_LOCAL_CDI_ID'] = xr.DataArray(np.array([cadena]), dims={'TIME': 1})
+      #  self.variables['SDN_LOCAL_CDI_ID'] = xr.DataArray(np.array([cadena]), dims={'TIME': 1})
 
         cadena = b'http://opendap.intecmar.gal/thredds/catalog/data/nc/RADAR_HF/Galicia/catalog.html'
         n = len(cadena)
-        self.variables['SDN_REFERENCES'] = xr.DataArray(np.array([cadena]), dims={'TIME': 1})
+       # self.variables['SDN_REFERENCES'] = xr.DataArray(np.array([cadena]), dims={'TIME': 1})
 
         cadena = b"<sdn_reference xlink:href=\"http://opendap.intecmar.gal/thredds/catalog/data/nc/RADAR_HF/Galicia/catalog.html\" xlink:role=\"\" xlink:type=\"URL\"/>"
         n = len(cadena)
-        self.variables['SDN_XLINK'] = xr.DataArray(np.array([[cadena]]), dims={'TIME': 1, 'REFMAX': 1})
+       # self.variables['SDN_XLINK'] = xr.DataArray(np.array([[cadena]]), dims={'TIME': 1, 'REFMAX': 1})
 
         # Otras:
         # Por ahora forzamos a estos valores para probar pero hay que sacarlos de la segunda tabla:
@@ -672,8 +674,41 @@ class Total:
 
         # Write netCDF:
         file_out = os.path.join(path_out, 'HFR-Galicia-%s_%s.nc')
-        print((file_out % ('Total', fecha.strftime('%Y_%m_%d_%H%M'))))
-        dataset.reset_coords(drop=False).to_netcdf(file_out % ('Total', fecha.strftime('%Y_%m_%d_%H%M')))
+        file_out_total = file_out % ('Total', fecha.strftime('%Y_%m_%d_%H%M'))
+        dataset.reset_coords(drop=False).to_netcdf(file_out_total)
+
+        with open('string_variables.json') as f:
+            json_data = json.loads(f.read())
+
+
+        with netCDF4.Dataset(file_out_total, 'r+') as nc:
+            # Write netCDF
+
+            # Dimensions
+            for dimension in json_data['dimensions']:
+                nc.createDimension(dimension['name'], dimension['size'])
+            # Global attributes
+           # for gl_att in json_data['global attributes']:
+           #     nc.setncattr(gl_att['name'], gl_att['value'])
+            # Variables
+            for var in json_data['variables']:
+                fill_value = var['fill_value']
+                nc_var = nc.createVariable(var['name'],
+                                           var['type'],
+                                           (*var['dimensions'],),
+                                           fill_value=fill_value)
+                # Attributes of a variable
+                for attr_var in var['attributes']:
+                    if attr_var['type'] == 'ndarray':
+                        attr_var['value'] = np.dtype(attr_var['type_element']).type(attr_var['value'])
+                    else:
+                        attr_var['value'] = np.dtype(attr_var['type']).type(attr_var['value'])
+                    nc_var.setncattr(attr_var['name'], attr_var['value'])
+
+                # Value
+                if 'value' in var:
+                    nc_var[:] = np.full(nc_var.shape, var['value'], dtype=var['type'])
+
 
     def __repr__(self):
         return '<Total class>'
