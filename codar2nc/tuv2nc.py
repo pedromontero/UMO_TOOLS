@@ -673,7 +673,14 @@ class Total:
         # Write netCDF:
         file_out = os.path.join(path_out, 'HFR-Galicia-%s_%s.nc')
         print((file_out % ('Total', fecha.strftime('%Y_%m_%d_%H%M'))))
-        dataset.reset_coords(drop=False).to_netcdf(file_out % ('Total', fecha.strftime('%Y_%m_%d_%H%M')))
+        file_out_total = file_out % ('Total', fecha.strftime('%Y_%m_%d_%H%M'))
+        dataset.reset_coords(drop=False).to_netcdf(file_out_total)
+
+        # Dimension string* moves to STRING*
+        with netCDF4.Dataset(file_out_total, 'r+')as nc:
+            dim_list = [dim for dim in nc.dimensions if 'string' in dim]
+            for dim_actual in dim_list:
+                nc.renameDimension(dim_actual, dim_actual.upper())
 
     def __repr__(self):
         return '<Total class>'
