@@ -1,0 +1,138 @@
+{
+    "dimensions":[
+        {
+            "name": "STRING50",
+            "size": 50
+        },
+        {
+            "name": "STRING250",
+            "size": 250
+        },
+        {
+            "name": "REFMAX",
+            "size": 1
+        }
+        ,
+        {
+            "name": "MAXINST",
+            "size": 5
+        }
+    ],
+    "variables":[
+        {
+            "name": "SDN_EDMO_CODE",
+            "type": "S1",
+            "fill_value": null,
+            "dimensions": [
+                "TIME",
+                "MAXINST",
+                "STRING50"
+            ],
+            "attributes": [
+                {
+                    "name": "long_name",
+                    "value": "European Directory of Marine Organisations code for the CDI partner",
+                    "type": "str"
+                },
+                {
+                    "name": "units",
+                    "value": "1",
+                    "type": "int"
+                }
+            ],
+            "value": {"PRIO": 4841, "SILL": 2751, "VILA": 4841, "LPRO": 590, "FIST": 2751}
+        },
+        {
+            "name": "SDN_CRUISE",
+            "type": "S1",
+            "fill_value": null,
+            "dimensions": [
+                "TIME",
+                "STRING50"
+            ],
+            "attributes": [
+                {
+                    "name": "long_name",
+                    "value": "Grid grouping label",
+                    "type": "str"
+                }
+            ],
+            "value": "HFR-Galicia"
+        },
+        {
+            "name": "SDN_STATION",
+            "type": "S1",
+            "fill_value": null,
+            "dimensions": [
+                "TIME",
+                "STRING50"
+            ],
+            "attributes": [
+                {
+                    "name": "long_name",
+                    "value": "Grid label",
+                    "type": "str"
+                }
+            ],
+            "value": "HFR-Galicia-Total"
+        },
+        {
+            "name": "SDN_LOCAL_CDI_ID",
+            "type": "S1",
+            "fill_value": null,
+            "dimensions": [
+                "TIME",
+                "STRING50"
+            ],
+            "attributes": [
+                {
+                    "name": "long_name",
+                    "value": "SeaDataCloud CDI identifier",
+                    "type": "str"
+                },
+                {
+                    "name": "cf_role",
+                    "value": "grid_id",
+                    "type": "str"
+                }
+            ],
+            "value": "HFR-Galicia-Total_%sZ"
+        },
+
+        {
+            "name": "SDN_REFERENCES",
+            "type": "S1",
+            "fill_value": null,
+            "dimensions": [
+                "TIME",
+                "STRING250"
+            ],
+            "attributes": [
+                {
+                    "name": "long_name",
+                    "value": "Usage metadata reference",
+                    "type": "str"
+                }
+            ],
+            "value": "http://opendap.intecmar.gal/thredds/catalog/data/nc/RADAR_HF/Galicia/catalog.html"
+        },
+        {
+            "name": "SDN_XLINK",
+            "type": "S1",
+            "fill_value": null,
+            "dimensions": [
+                "TIME",
+                "REFMAX",
+                "STRING250"
+            ],
+            "attributes": [
+                {
+                    "name": "long_name",
+                    "value": "External resource linkages",
+                    "type": "str"
+                }
+            ],
+            "value": "<sdn_reference xlink:href=\\\"http://opendap.intecmar.gal/thredds/catalog/data/nc/RADAR_HF/Galicia/catalog.html\\\" xlink:role=\\\"\\\" xlink:type=\\\"URL\\\"/>"
+        }
+    ]
+}
