@@ -585,6 +585,10 @@ class Total:
             self.variables[variable].encoding["dtype"] = dtypes[variable]
             self.variables[variable].encoding["_FillValue"] = _FillValues[variable]
 
+        for variable in ['SCDR', 'SCDT']:
+            # Encoding de las variables en el fichero:
+            self.variables[variable].encoding["_FillValue"] = ' '
+
         # Generamos el xarra.Dataset. radial.variables contienen los xr.DataArray necesarios:
         dataset = xr.Dataset(self.variables)
 
