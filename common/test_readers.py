@@ -1,5 +1,5 @@
 
-from readers.reader_factory import  read_factory
+from readers.reader_factory import read_factory
 
 
 def main():
