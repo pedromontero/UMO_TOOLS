@@ -2,8 +2,6 @@ import os
 from datetime import datetime, timedelta
 
 
-
-
 class FolderTree:
 
     SETS = ['Totals', 'Radials']
