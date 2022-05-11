@@ -76,19 +76,44 @@ def radarhf_ui(file_in, file_out):
     :return:
     """
     ui = UI(file_in)
-    ui.create_ui(file_out)
+    ui.create_ui()
+    ui.write_ui(file_out)
+
+
+def radarhf_ui24(day_in, root_folder, totals_folder, fileout):
+    ui24 = UI24(day_in)
+    ui24.create_thredds(root_folder, totals_folder)
+    ui24.get_ui24()
+
+
+
 
 
 class UI24:
     """Class for upwelling index from an average of 24 hours"""
     def __init__(self, day):
         self.day = day
+        self.thredds = None
 
-    def create_range_of_datetimes(self):
+    def get_range_of_datetimes(self):
         return [self.day + timedelta(hours=hour) for hour in range(0, 25)]
 
+    def create_thredds(self, root_folder, totals_folder):
+        thredds_folder = os.path.join(root_folder, totals_folder)
+        self.thredds = FolderTree(thredds_folder)
 
-  
+    def get_ui24(self):
+        dates_list = self.get_range_of_datetimes()
+        for date in dates_list:
+            file_nc = os.path.join(self.thredds.root, self.thredds.get_full_total_file_nc(date))
+            print(file_nc)
+            ui_all = []
+            if check_nc_file(file_nc):
+                ui = UI(file_nc)
+                ui_all.append(ui)
+        print(ui_all)
+
+
 class UI:
     """Class for upwelling index field"""
 
@@ -162,11 +187,12 @@ class UI:
         upwelling_index = -(roa * cd * (v * ((u * u + v * v) ** 0.5) * 3000000)) / (f_stack * ro)
         return upwelling_index
 
-    def create_ui(self, file_out):
-        upwelling_index = self.calculate_ui()
-        conversor = np.dtype(self.dtype)
-        upwelling_index = upwelling_index.astype(conversor)
+    def create_ui(self):
+        self.upwelling_index = self.calculate_ui()
 
+    def write_ui(self, file_out):
+        conversor = np.dtype(self.dtype)
+        upwelling_index = self.upwelling_index.astype(conversor)
         self.array = xr.DataArray(upwelling_index, dims=['TIME', 'DEPTH', 'LATITUDE', 'LONGITUDE'])
         self.write_attributes()
 
@@ -175,7 +201,7 @@ class UI:
                                        'LATITUDE': self.dataset_in['LATITUDE'],
                                        'LONGITUDE': self.dataset_in['LONGITUDE'],
                                        'crs': self.dataset_in['crs'],
-                                        'UI': self.array})
+                                       'UI': self.array})
         self.write_global_attributes()
 
         del self.dataset_out['TIME'].attrs['ancillary_variables']
@@ -198,10 +224,16 @@ class UI:
 
 if __name__ == '__main__':
 
-    day_in = datetime(2022,3,4)
+    day_in = datetime(2022,4,3)
+    root_folder = r'../../datos/radarhf/'
+    totals_folder = r'dev/RadarOnRAIA/Totals/v2.2'
+    ui_folder = r'dev/RadarOnRAIA/UI'
 
-    ui24 = UI24(day_in)
-    print(ui24.create_range_of_datetimes())
+    radarhf_ui24(day_in, root_folder, totals_folder, ui_folder)
+
+
+
+
     # ui2thredds()
 
     # Read input file
