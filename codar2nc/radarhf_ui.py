@@ -78,6 +78,16 @@ def radarhf_ui(file_in, file_out):
     ui = UI(file_in)
     ui.create_ui(file_out)
 
+
+class UI24:
+    """Class for upwelling index from an average of 24 hours"""
+    def __init__(self, day):
+        self.day = day
+
+    def create_range_of_datetimes(self):
+        return [self.day + timedelta(hours=hour) for hour in range(0, 25)]
+
+
   
 class UI:
     """Class for upwelling index field"""
@@ -136,6 +146,8 @@ class UI:
                                             f' {now_utc}Z netCDF file created'
 
     def calculate_ui(self):
+        """ Calculate UI for a dataset_in, one time"""
+
         u = self.dataset_in['EWCT'].values
         v = self.dataset_in['NSCT'].values
         latitudes = self.dataset_in['LATITUDE'].values
@@ -185,7 +197,12 @@ class UI:
 
 
 if __name__ == '__main__':
-    ui2thredds()
+
+    day_in = datetime(2022,3,4)
+
+    ui24 = UI24(day_in)
+    print(ui24.create_range_of_datetimes())
+    # ui2thredds()
 
     # Read input file
     # inputs = read_inputs('radarhf_ui.json')
