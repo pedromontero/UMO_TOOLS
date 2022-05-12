@@ -59,7 +59,6 @@ class Tuv2Nc:
                 os.makedirs(self.nc_folder)
 
 
-
 def tuv2thredds(data_folder):
     system = 'GALI'
 
