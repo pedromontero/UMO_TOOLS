@@ -83,7 +83,7 @@ def radarhf_ui(file_in, file_out):
 def radarhf_ui24(day_in, root_folder, totals_folder, fileout):
     ui24 = UI24(day_in)
     ui24.create_thredds(root_folder, totals_folder)
-    ui24.get_ui24()
+    print(ui24.get_ui24())
 
 
 
@@ -104,14 +104,14 @@ class UI24:
 
     def get_ui24(self):
         dates_list = self.get_range_of_datetimes()
+        ui_all = []
         for date in dates_list:
             file_nc = os.path.join(self.thredds.root, self.thredds.get_full_total_file_nc(date))
             print(file_nc)
-            ui_all = []
             if check_nc_file(file_nc):
-                ui = UI(file_nc)
-                ui_all.append(ui)
-        print(ui_all)
+                print('entro')
+                ui_all.append(UI(file_nc).create_ui())
+        return xr.concat(ui_all, dim='TIME')
 
 
 class UI:
@@ -189,8 +189,6 @@ class UI:
 
     def create_ui(self):
         self.upwelling_index = self.calculate_ui()
-
-    def write_ui(self, file_out):
         conversor = np.dtype(self.dtype)
         upwelling_index = self.upwelling_index.astype(conversor)
         self.array = xr.DataArray(upwelling_index, dims=['TIME', 'DEPTH', 'LATITUDE', 'LONGITUDE'])
@@ -208,7 +206,9 @@ class UI:
         del self.dataset_out['DEPH'].attrs['ancillary_variables']
         del self.dataset_out['LATITUDE'].attrs['ancillary_variables']
         del self.dataset_out['LONGITUDE'].attrs['ancillary_variables']
+        return self.dataset_out
 
+    def write_ui(self, file_out):
         self.dataset_out.reset_coords(drop=False).to_netcdf(file_out)
 
 
