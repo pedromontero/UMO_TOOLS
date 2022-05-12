@@ -80,10 +80,13 @@ def radarhf_ui(file_in, file_out):
     ui.write_ui(file_out)
 
 
-def radarhf_ui24(day_in, root_folder, totals_folder, fileout):
+def radarhf_ui24(day_in, root_folder, totals_folder, file_out):
     ui24 = UI24(day_in)
     ui24.create_thredds(root_folder, totals_folder)
-    print(ui24.get_ui24())
+    ui_dataset = ui24.get_concat_ui()
+    mean_ui_dataset = ui_dataset.mean(dim='TIME', keep_attrs=True)
+    mean_ui_dataset_min_18h = mean_ui_dataset.where(ui_dataset.count(dim='TIME') > 18)
+    mean_ui_dataset_min_18h.reset_coords(drop=False).to_netcdf(file_out)
 
 
 
@@ -102,7 +105,7 @@ class UI24:
         thredds_folder = os.path.join(root_folder, totals_folder)
         self.thredds = FolderTree(thredds_folder)
 
-    def get_ui24(self):
+    def get_concat_ui(self):
         dates_list = self.get_range_of_datetimes()
         ui_all = []
         for date in dates_list:
@@ -229,7 +232,11 @@ if __name__ == '__main__':
     totals_folder = r'dev/RadarOnRAIA/Totals/v2.2'
     ui_folder = r'dev/RadarOnRAIA/UI'
 
-    radarhf_ui24(day_in, root_folder, totals_folder, ui_folder)
+    file_out = day_in.strftime('HFR-Galicia-UI_%Y_%m_%d.nc')
+    nc_file_out = os.path.join(root_folder, ui_folder, file_out)
+    print()
+
+    radarhf_ui24(day_in, root_folder, totals_folder, nc_file_out)
 
 
 
