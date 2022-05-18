@@ -28,7 +28,6 @@ import numpy as np
 
 from codar2nc.create_dir_structure import FolderTree
 
-
 def ui2thredds(number_days=5, end_date=None):
 
     root_folder = r'../../datos/radarhf/'
@@ -49,6 +48,23 @@ def ui2thredds(number_days=5, end_date=None):
             radarhf_ui(file_nc, nc_file_out)
 
 
+def ui24_to_thredds(number_days=2, end_date=None):
+
+    root_folder = r'../../datos/radarhf/'
+    totals_folder = r'dev/RadarOnRAIA/Totals/v2.2'
+    ui_folder = r'dev/RadarOnRAIA/UI'
+
+    date_list = get_list_dates_by_day(end_date, number_days)
+
+    for date in date_list:
+        file_out = date.strftime('HFR-Galicia-UI_%Y_%m_%d.nc')
+        nc_file_out = os.path.join(root_folder, ui_folder, file_out)
+        try:
+            radarhf_ui24(date, root_folder, totals_folder, nc_file_out)
+        except:
+            print('non fixen ', file_out)
+
+
 def check_nc_file(full_file):
     if os.path.isfile(full_file):
         #print(f'existe {full_file} ')
@@ -61,8 +77,20 @@ def check_nc_file(full_file):
 def get_list_dates(end_date, number_days):
     if end_date is None:
         end_date = date.today()
+    #end_date in this case is tomorrow
     end_date = datetime.combine(end_date + timedelta(1), time(0))
     date_list = [end_date - timedelta(hours=hours) for hours in range(number_days * 24)]
+
+    return date_list
+
+
+def get_list_dates_by_day(end_date, number_days):
+
+    if end_date is None:
+        end_date = date.today()
+    # end_date in this case is yesterday
+    end_date = datetime.combine(end_date + timedelta(-1), time(0))
+    date_list = [end_date - timedelta(days=days) for days in range(number_days)]
 
     return date_list
 
@@ -81,14 +109,15 @@ def radarhf_ui(file_in, file_out):
 
 
 def radarhf_ui24(day_in, root_folder, totals_folder, file_out):
+
+    mascara = xr.open_dataset(r'./maskout.nc')
     ui24 = UI24(day_in)
     ui24.create_thredds(root_folder, totals_folder)
     ui_dataset = ui24.get_concat_ui()
     mean_ui_dataset = ui_dataset.mean(dim='TIME', keep_attrs=True)
     mean_ui_dataset_min_18h = mean_ui_dataset.where(ui_dataset.count(dim='TIME') > 18)
+    mean_ui_dataset_min_18h = mean_ui_dataset_min_18h.where(mascara['MASK']>0)
     mean_ui_dataset_min_18h.reset_coords(drop=False).to_netcdf(file_out)
-
-
 
 
 
@@ -110,9 +139,7 @@ class UI24:
         ui_all = []
         for date in dates_list:
             file_nc = os.path.join(self.thredds.root, self.thredds.get_full_total_file_nc(date))
-            print(file_nc)
             if check_nc_file(file_nc):
-                print('entro')
                 ui_all.append(UI(file_nc).create_ui())
         return xr.concat(ui_all, dim='TIME')
 
@@ -227,17 +254,17 @@ class UI:
 
 if __name__ == '__main__':
 
-    day_in = datetime(2022,4,3)
-    root_folder = r'../../datos/radarhf/'
-    totals_folder = r'dev/RadarOnRAIA/Totals/v2.2'
-    ui_folder = r'dev/RadarOnRAIA/UI'
+    #day_in = datetime(2022,4,3)
+    #root_folder = r'../../datos/radarhf/'
+    #totals_folder = r'dev/RadarOnRAIA/Totals/v2.2'
+    #ui_folder = r'dev/RadarOnRAIA/UI'
 
-    file_out = day_in.strftime('HFR-Galicia-UI_%Y_%m_%d.nc')
-    nc_file_out = os.path.join(root_folder, ui_folder, file_out)
-    print()
+    #file_out = day_in.strftime('HFR-Galicia-UI_%Y_%m_%d.nc')
+    #nc_file_out = os.path.join(root_folder, ui_folder, file_out)
+    #print()
 
-    radarhf_ui24(day_in, root_folder, totals_folder, nc_file_out)
-
+    #radarhf_ui24(day_in, root_folder, totals_folder, nc_file_out)
+    ui24_to_thredds()
 
 
 
