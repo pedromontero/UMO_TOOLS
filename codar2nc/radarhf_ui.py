@@ -28,6 +28,7 @@ import numpy as np
 
 from codar2nc.create_dir_structure import FolderTree
 
+
 def ui2thredds(number_days=5, end_date=None):
 
     root_folder = r'../../datos/radarhf/'
@@ -105,6 +106,7 @@ def radarhf_ui(file_in, file_out):
     """
     ui = UI(file_in)
     ui.create_ui()
+    ui.create_ui_dataset()
     ui.write_ui(file_out)
 
 
@@ -114,11 +116,17 @@ def radarhf_ui24(day_in, root_folder, totals_folder, file_out):
     ui24 = UI24(day_in)
     ui24.create_thredds(root_folder, totals_folder)
     ui_dataset = ui24.get_concat_ui()
+
     mean_ui_dataset = ui_dataset.mean(dim='TIME', keep_attrs=True)
     mean_ui_dataset_min_18h = mean_ui_dataset.where(ui_dataset.count(dim='TIME') > 18)
-    mean_ui_dataset_min_18h = mean_ui_dataset_min_18h.where(mascara['MASK']>0)
-    mean_ui_dataset_min_18h.reset_coords(drop=False).to_netcdf(file_out)
+    mean_ui_dataset_min_18h = mean_ui_dataset_min_18h.where(mascara['MASK'] > 0)
 
+    file_nc = os.path.join(ui24.thredds.root, ui24.thredds.get_full_total_file_nc(day_in))
+    if check_nc_file(file_nc):
+        ui = UI(file_nc)
+        ui.set_ui(np.array([mean_ui_dataset_min_18h['UI']]))
+        ui.create_ui_dataset()
+        ui.write_ui(file_out)
 
 
 class UI24:
@@ -140,7 +148,9 @@ class UI24:
         for date in dates_list:
             file_nc = os.path.join(self.thredds.root, self.thredds.get_full_total_file_nc(date))
             if check_nc_file(file_nc):
-                ui_all.append(UI(file_nc).create_ui())
+                ui = UI(file_nc)
+                ui.create_ui()
+                ui_all.append(ui.create_ui_dataset())
         return xr.concat(ui_all, dim='TIME')
 
 
@@ -219,6 +229,11 @@ class UI:
 
     def create_ui(self):
         self.upwelling_index = self.calculate_ui()
+
+    def set_ui(self, ui):
+        self.upwelling_index = ui
+
+    def create_ui_dataset(self):
         conversor = np.dtype(self.dtype)
         upwelling_index = self.upwelling_index.astype(conversor)
         self.array = xr.DataArray(upwelling_index, dims=['TIME', 'DEPTH', 'LATITUDE', 'LONGITUDE'])
@@ -254,16 +269,16 @@ class UI:
 
 if __name__ == '__main__':
 
-    #day_in = datetime(2022,4,3)
-    #root_folder = r'../../datos/radarhf/'
-    #totals_folder = r'dev/RadarOnRAIA/Totals/v2.2'
-    #ui_folder = r'dev/RadarOnRAIA/UI'
+   # day_in = datetime(2022,4,3)
+   # root_folder = r'../../datos/radarhf/'
+   # totals_folder = r'dev/RadarOnRAIA/Totals/v2.2'
+   # ui_folder = r'dev/RadarOnRAIA/UI'
 
-    #file_out = day_in.strftime('HFR-Galicia-UI_%Y_%m_%d.nc')
-    #nc_file_out = os.path.join(root_folder, ui_folder, file_out)
-    #print()
+   # file_out = day_in.strftime('HFR-Galicia-UI_%Y_%m_%d.nc')
+   # nc_file_out = os.path.join(root_folder, ui_folder, file_out)
 
-    #radarhf_ui24(day_in, root_folder, totals_folder, nc_file_out)
+
+  #  radarhf_ui24(day_in, root_folder, totals_folder, nc_file_out)
     ui24_to_thredds()
 
 
