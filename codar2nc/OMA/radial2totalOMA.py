@@ -64,8 +64,8 @@ if __name__ == '__main__':
 
     radiales = []
     for prefijo in prefijos:
-        radiales += glob('%s/*_%s_2021_09_01_0000.ruv' % (path, prefijo)) # Solo una fecha de ejemplo
-        # radiales += glob('%s/*_%s_2022_04_01_0400.ruv' % (path, prefijo))
+        # radiales += glob('%s/*_%s_2021_09_01_0000.ruv' % (path, prefijo)) # Solo una fecha de ejemplo
+         radiales += glob('%s/*_%s_2022_04_01_0000.ruv' % (path, prefijo))
 
 
     R = []
@@ -161,7 +161,7 @@ if __name__ == '__main__':
     finder = T.get_trifinder()
 
     ## Necesitamos especificar una malla de salida. En este caso cogemos un fichero del THREDDS:
-    malla = xr.open_dataset('./datos/HFR-Galicia-Total_2022_05_14_0000.nc')
+    malla = xr.open_dataset('./datos/HFR-Galicia-Total_2022_04_01_0000.nc')
 
     #np.meshgrid(malla.lon,malla.lat)
 
