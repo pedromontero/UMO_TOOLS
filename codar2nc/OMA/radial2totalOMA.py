@@ -215,7 +215,7 @@ if __name__ == '__main__':
     fig1, ax1 = plt.subplots()
 
     ax1.quiver(malla.LONGITUDE, malla.LATITUDE, malla.EWCT.squeeze(), malla.NSCT.squeeze(),scale=10)
-    ax1.quiver(BX,BY,Ux,Uy,scale=10,color='r')
+    ax1.quiver(BX,BY,Uy,Uy,scale=10,color='r')
     ax1.plot(X,Y,'b.')
 
     ax1.set_aspect('equal')
@@ -237,7 +237,7 @@ if __name__ == '__main__':
     #ax1.pcolor(malla.lon,malla.lat,np.sqrt(malla.u**2+malla.v**2).squeeze(),vmin=0,vmax=0.5)
     ax1.pcolor(malla.LONGITUDE,malla.LATITUDE,malla.NSCT.squeeze(),vmin=-0.5,vmax=0.5)
 
-    ax1.quiver(malla.LONGITUDE,malla.LATITUDE,malla.NSCT.squeeze(), malla.EWCT.squeeze(), scale=10)
+    ax1.quiver(malla.LONGITUDE,malla.LATITUDE,malla.EWCT.squeeze(),malla.NSCT.squeeze(),  scale=10)
     plt.grid()
     ax1.set_aspect('equal')
     ax1.axis(a)
