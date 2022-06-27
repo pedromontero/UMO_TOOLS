@@ -18,7 +18,6 @@ from radiales import Radial, Grid
 deg2rad = np.pi/180
 rad2deg = 1/deg2rad
 
-
 def tsearch_arbitrary(p, t, x, y):
 
     # Triangulador y finder para localizar el triángulo:
@@ -26,21 +25,82 @@ def tsearch_arbitrary(p, t, x, y):
     finder = T.get_trifinder()
 
     # Con los datos calculados por el finder:
-    Tn = finder(x,y)
+    Tn = finder(x, y)
 
     # Coordenadas baricentricas:
-    p1  = p[t[Tn][:,0]]
-    v12 = p[t[Tn][:,1]] - p1
-    v13 = p[t[Tn][:,2]] - p1
-    dd  = v12[:,0]*v13[:,1] - v12[:,1]*v13[:,0]
+    p1 = p[t[Tn][:, ]]
+    v12 = p[t[Tn][:, 1]] - p1
+    v13 = p[t[Tn][:, 2]] - p1
+    dd = v12[:, 0]*v13[:, 1] - v12[:, 1]*v13[:, 0]
 
-    xx = x - p1[:,0]
-    yy = y - p1[:,1]
+    xx = x - p1[:, 0]
+    yy = y - p1[:, 1]
 
-    A12 = ( v13[:,1]*xx - v13[:,0]*yy )/dd
-    A13 = ( v12[:,0]*yy - v12[:,1]*xx )/dd
+    A12 = (v13[:, 1]*xx - v13[:,0]*yy )/dd
+    A13 = (v12[:, 0]*yy - v12[:,1]*xx )/dd
 
     return Tn, A12, A13
+
+
+def plot_OMA():
+
+    fig1, ax1 = plt.subplots()
+    # ax1.pcolor(malla.lon,malla.lat,np.sqrt(malla.u**2+malla.v**2).squeeze(),vmin=0,vmax=0.5)
+    ax1.pcolor(malla.LONGITUDE, malla.LATITUDE, malla.NSCT.squeeze(), vmin=-0.5, vmax=0.5)
+    ax1.quiver(malla.LONGITUDE, malla.LATITUDE, malla.EWCT.squeeze(), malla.NSCT.squeeze(), scale=10)
+    plt.grid()
+    ax1.set_aspect('equal')
+    ax1.axis(a)
+    plt.show()
+
+
+def plot_total():
+    global fig1, ax1, a
+    fig1, ax1 = plt.subplots()
+    # ax1.pcolor(malla.lon,malla.lat,np.sqrt(Tx**2+Ty**2),vmin=0,vmax=0.5)
+    ax1.pcolor(malla.LONGITUDE, malla.LATITUDE, Ty, vmin=-0.5, vmax=0.5)
+    ax1.quiver(malla.LONGITUDE, malla.LATITUDE, Tx, Ty, scale=10)
+    plt.grid()
+    ax1.set_aspect('equal')
+    a = ax1.axis()
+
+
+def plot_comparison():
+    #global fig1, ax1
+    fig1, ax1 = plt.subplots()
+    ax1.quiver(malla.LONGITUDE, malla.LATITUDE, malla.EWCT.squeeze(), malla.NSCT.squeeze(), scale=10)
+    ax1.quiver(BX, BY, Uy, Uy, scale=10, color='r')
+    ax1.plot(X, Y, 'b.')
+    ax1.set_aspect('equal')
+    plt.grid()
+    plt.show()
+
+
+def plot_results_on_triangular_grid() -> object:
+    #global fig1, ax1
+    # En la malla triangular:
+    fig1, ax1 = plt.subplots()
+    ax1.set_aspect('equal')
+    ax1.triplot(T, 'k-', lw=1)
+    # Resultado de la interpolación:
+    ## Módulo de la interpolación en la malla triangular:
+    clb = ax1.tripcolor(T, np.sqrt(Ux * Ux + Uy * Uy))
+    plt.colorbar(clb)
+    '''
+        ##  Vectores resultado de la interpolación:
+        ax1.quiver(BX,BY,Ux,Uy,scale=10)
+    
+        ## Vectores resultado de la interpolación solo en los triangulos con dato de radial:
+        ax1.quiver(BX[Tn],BY[Tn],Ux[Tn],Uy[Tn],scale=10)
+        '''
+    ## Componente radial del resultado de la interpolación:
+    modulo = Ux[Tn] * np.cos(theta) + Uy[Tn] * np.sin(theta)
+    ax1.quiver(BX[Tn], BY[Tn], modulo * np.cos(theta), modulo * np.sin(theta), scale=10)
+    ## Radiales usadas en la inteprolación:
+    ax1.quiver(X, Y, speed * np.cos(theta), speed * np.sin(theta), color='r', scale=10)
+    plt.grid()
+    plt.show()
+
 
 if __name__ == '__main__':
 
@@ -54,9 +114,8 @@ if __name__ == '__main__':
     p = m['pLonLat'].T
 
     # Triangulación resultante de pdetool (one-based):
-    t  = m['t'][0:3].T
-    t -= 1 # Pasamos a cero-based
-
+    t = m['t'][0:3].T
+    t -= 1  # Pasamos a cero-based
 
     path = './datos/RadialFiles'
     prefijos = ['SILL','VILA','FIST','PRIO']
@@ -66,7 +125,6 @@ if __name__ == '__main__':
     for prefijo in prefijos:
         # radiales += glob('%s/*_%s_2021_09_01_0000.ruv' % (path, prefijo)) # Solo una fecha de ejemplo
          radiales += glob('%s/*_%s_2022_04_01_0000.ruv' % (path, prefijo))
-
 
     R = []
 
@@ -95,8 +153,8 @@ if __name__ == '__main__':
         [tn,a12,a13] = tsearch_arbitrary( p, t, x, y )
 
         # Estas son las amplitudes de los modos en la malla radial (equivalente a toda pdeintrp_arbitrary en nuestro caso particular):
-        ux.append( m['ux_tri'][tn,:] )
-        uy.append( m['uy_tri'][tn,:] )
+        ux.append(m['ux_tri'][tn, :])
+        uy.append(m['uy_tri'][tn, :])
 
         # Otros acumuladores:
         X.append(x)
@@ -118,11 +176,10 @@ if __name__ == '__main__':
     X = np.concatenate(X)
     Y = np.concatenate(Y)
 
-    head  = np.concatenate(head)
+    head = np.concatenate(head)
 
     # Cambio de convención para la dirección (meteorológica -> cartesiana):
     theta = np.arctan2(-np.cos(head*deg2rad), -np.sin(head*deg2rad))
-
     speed = np.concatenate(speed)
 
     # Ya en openMA_modes_fit_with_errors. Esto es la proyección de las amplitudes de los modos en la dirección del nodo, que no es otra cosa que 
@@ -137,16 +194,16 @@ if __name__ == '__main__':
     theta = theta[condicion]
     modes = modes[condicion]
 
-    X  = X[condicion]
-    Y  = Y[condicion]
+    X = X[condicion]
+    Y = Y[condicion]
     Tn = Tn[condicion]
 
     # Estos factores... no he investigado lo que son... Tampoco calculamos con matriz de pesos. 
     # q = modes.shape[0]
     # K = float(entrada['p']['K'])
 
-    A = np.dot(modes.T,modes) # + K*q/2
-    b = np.dot(modes.T,speed)
+    A = np.dot(modes.T, modes) # + K*q/2
+    b = np.dot(modes.T, speed)
 
     alpha = solve(A,b)
 
@@ -155,92 +212,34 @@ if __name__ == '__main__':
     Uy = (m['uy_tri']*alpha).sum(axis=1)
 
     # Interpolación a una malla regular por el método de NN:
-
-    ## Triangulador:
-    T = Triangulation(p[:,0],p[:,1],t)
+    # Triangulador:
+    T = Triangulation(p[:, 0], p[:, 1], t)
     finder = T.get_trifinder()
 
-    ## Necesitamos especificar una malla de salida. En este caso cogemos un fichero del THREDDS:
+    # Necesitamos especificar una malla de salida. En este caso cogemos un fichero del THREDDS:
     malla = xr.open_dataset('./datos/HFR-Galicia-Total_2022_04_01_0000.nc')
 
     #np.meshgrid(malla.lon,malla.lat)
 
     lon, lat = np.meshgrid(malla.LONGITUDE, malla.LATITUDE)
-    asignacion = finder(lon,lat)
+    asignacion = finder(lon, lat)
 
     Tx = Ux[asignacion]
     Ty = Uy[asignacion]
 
-    Tx[asignacion==-1] = np.nan
-    Ty[asignacion==-1] = np.nan
+    Tx[asignacion == -1] = np.nan
+    Ty[asignacion == -1] = np.nan
 
     ##############
     # RESULTADOS #
     ##############
 
     # AUX: Coordendas de los baricentros de la triangulación original:
-    BX = (p[:,0][t]/3).sum(axis=1)
-    BY = (p[:,1][t]/3).sum(axis=1)
+    BX = (p[:, 0][t]/3).sum(axis=1)
+    BY = (p[:, 1][t]/3).sum(axis=1)
 
-    # En la malla triangular:
-    fig1, ax1 = plt.subplots()
-    ax1.set_aspect('equal')
-    ax1.triplot(T, 'k-', lw=1)
-
-    # Resultado de la interpolación:
-    ## Módulo de la interpolación en la malla triangular:
-    clb = ax1.tripcolor(T,np.sqrt(Ux*Ux+Uy*Uy))
-    plt.colorbar(clb)
-
-    '''
-    ##  Vectores resultado de la interpolación:
-    ax1.quiver(BX,BY,Ux,Uy,scale=10)
-
-    ## Vectores resultado de la interpolación solo en los triangulos con dato de radial:
-    ax1.quiver(BX[Tn],BY[Tn],Ux[Tn],Uy[Tn],scale=10)
-    '''
-
-    ## Componente radial del resultado de la interpolación:
-    modulo = Ux[Tn]*np.cos(theta) + Uy[Tn]*np.sin(theta)
-    ax1.quiver(BX[Tn],BY[Tn],modulo*np.cos(theta),modulo*np.sin(theta),scale=10)
-
-    ## Radiales usadas en la inteprolación:
-    ax1.quiver(X, Y, speed*np.cos(theta), speed*np.sin(theta),color='r',scale=10)
-
-    plt.grid()
-
-    plt.show()
-
-
-    fig1, ax1 = plt.subplots()
-
-    ax1.quiver(malla.LONGITUDE, malla.LATITUDE, malla.EWCT.squeeze(), malla.NSCT.squeeze(),scale=10)
-    ax1.quiver(BX,BY,Uy,Uy,scale=10,color='r')
-    ax1.plot(X,Y,'b.')
-
-    ax1.set_aspect('equal')
-
-    plt.grid()
-
-    plt.show()
-
-
-    fig1, ax1 = plt.subplots()
-    #ax1.pcolor(malla.lon,malla.lat,np.sqrt(Tx**2+Ty**2),vmin=0,vmax=0.5)
-    ax1.pcolor(malla.LONGITUDE,malla.LATITUDE,Ty,vmin=-0.5,vmax=0.5)
-    ax1.quiver(malla.LONGITUDE,malla.LATITUDE,Tx, Ty, scale=10)
-    plt.grid()
-    ax1.set_aspect('equal')
-    a = ax1.axis()
-
-    fig1, ax1 = plt.subplots()
-    #ax1.pcolor(malla.lon,malla.lat,np.sqrt(malla.u**2+malla.v**2).squeeze(),vmin=0,vmax=0.5)
-    ax1.pcolor(malla.LONGITUDE,malla.LATITUDE,malla.NSCT.squeeze(),vmin=-0.5,vmax=0.5)
-
-    ax1.quiver(malla.LONGITUDE,malla.LATITUDE,malla.EWCT.squeeze(),malla.NSCT.squeeze(),  scale=10)
-    plt.grid()
-    ax1.set_aspect('equal')
-    ax1.axis(a)
-
-    plt.show()
+    plot_results_on_triangular_grid()
+    plot_comparison()
+    plot_total()
+    plot_OMA()
 
