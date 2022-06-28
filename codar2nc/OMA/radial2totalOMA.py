@@ -28,7 +28,7 @@ def tsearch_arbitrary(p, t, x, y):
     Tn = finder(x, y)
 
     # Coordenadas baricentricas:
-    p1 = p[t[Tn][:, ]]
+    p1 = p[t[Tn][:, 0]]
     v12 = p[t[Tn][:, 1]] - p1
     v13 = p[t[Tn][:, 2]] - p1
     dd = v12[:, 0]*v13[:, 1] - v12[:, 1]*v13[:, 0]
@@ -42,7 +42,15 @@ def tsearch_arbitrary(p, t, x, y):
     return Tn, A12, A13
 
 
-def plot_OMA():
+def plot_oma_and_total():
+
+    fig1, ax1 = plt.subplots()
+    # ax1.pcolor(malla.lon,malla.lat,np.sqrt(Tx**2+Ty**2),vmin=0,vmax=0.5)
+    ax1.pcolor(malla.LONGITUDE, malla.LATITUDE, Ty, vmin=-0.5, vmax=0.5)
+    ax1.quiver(malla.LONGITUDE, malla.LATITUDE, Tx, Ty, scale=10)
+    plt.grid()
+    ax1.set_aspect('equal')
+    a = ax1.axis()
 
     fig1, ax1 = plt.subplots()
     # ax1.pcolor(malla.lon,malla.lat,np.sqrt(malla.u**2+malla.v**2).squeeze(),vmin=0,vmax=0.5)
@@ -54,15 +62,8 @@ def plot_OMA():
     plt.show()
 
 
-def plot_total():
-    global fig1, ax1, a
-    fig1, ax1 = plt.subplots()
-    # ax1.pcolor(malla.lon,malla.lat,np.sqrt(Tx**2+Ty**2),vmin=0,vmax=0.5)
-    ax1.pcolor(malla.LONGITUDE, malla.LATITUDE, Ty, vmin=-0.5, vmax=0.5)
-    ax1.quiver(malla.LONGITUDE, malla.LATITUDE, Tx, Ty, scale=10)
-    plt.grid()
-    ax1.set_aspect('equal')
-    a = ax1.axis()
+
+
 
 
 def plot_comparison():
@@ -104,21 +105,21 @@ def plot_results_on_triangular_grid() -> object:
 
 if __name__ == '__main__':
 
-    # Fichero con los modos precalculados:
-    path = './midemo/codigo_matlab/mi_demo/misdatos/'
-    path = './midemo/fit_OMA_modes_to_radials/'
+    # File with precalculated modes:
+    # path = './midemo/codigo_matlab/mi_demo/misdatos/'
+    # path = './midemo/fit_OMA_modes_to_radials/'
     path = './datos/'
-    m = scipy.io.loadmat('%s/modes.mat' % path,variable_names=['pLonLat', 't', 'ux_tri', 'uy_tri', 'border'],struct_as_record=True, squeeze_me=True)
+    m = scipy.io.loadmat('%s/modes.mat' % path, variable_names=['pLonLat', 't', 'ux_tri', 'uy_tri', 'border'],struct_as_record=True, squeeze_me=True)
 
-    # Nodos triangulación resultante de pdetool
+    # Nodes from resulted triangulation of pdetool
     p = m['pLonLat'].T
 
-    # Triangulación resultante de pdetool (one-based):
+    # Resulted triangulation of pdetool (one-based):
     t = m['t'][0:3].T
-    t -= 1  # Pasamos a cero-based
+    t -= 1  # Move to zero-based
 
     path = './datos/RadialFiles'
-    prefijos = ['SILL','VILA','FIST','PRIO']
+    # prefijos = ['SILL', 'VILA', 'FIST', 'PRIO']
     prefijos = ['*']
 
     radiales = []
@@ -131,7 +132,7 @@ if __name__ == '__main__':
     for fichero in radiales:
 
         # Creamos el objeto radial para leer el fichero:
-        radial  = Radial(fichero)
+        radial = Radial(fichero)
 
         # Creamos la malla donde queremos inscribir la tabla:
         grd = Grid(radial)
@@ -238,8 +239,8 @@ if __name__ == '__main__':
     BX = (p[:, 0][t]/3).sum(axis=1)
     BY = (p[:, 1][t]/3).sum(axis=1)
 
-    plot_results_on_triangular_grid()
-    plot_comparison()
-    plot_total()
-    plot_OMA()
+    #plot_results_on_triangular_grid()
+    #plot_comparison()
+    plot_oma_and_total()
+
 
