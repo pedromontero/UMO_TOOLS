@@ -67,7 +67,7 @@ def plot_oma_and_total():
 
 
 def plot_comparison():
-    #global fig1, ax1
+
     fig1, ax1 = plt.subplots()
     ax1.quiver(malla.LONGITUDE, malla.LATITUDE, malla.EWCT.squeeze(), malla.NSCT.squeeze(), scale=10)
     ax1.quiver(BX, BY, Uy, Uy, scale=10, color='r')
@@ -78,13 +78,13 @@ def plot_comparison():
 
 
 def plot_results_on_triangular_grid() -> object:
-    #global fig1, ax1
+
     # En la malla triangular:
     fig1, ax1 = plt.subplots()
     ax1.set_aspect('equal')
     ax1.triplot(T, 'k-', lw=1)
     # Resultado de la interpolación:
-    ## Módulo de la interpolación en la malla triangular:
+    # Módulo de la interpolación en la malla triangular:
     clb = ax1.tripcolor(T, np.sqrt(Ux * Ux + Uy * Uy))
     plt.colorbar(clb)
     '''
