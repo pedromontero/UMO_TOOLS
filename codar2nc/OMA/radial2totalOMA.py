@@ -25,7 +25,7 @@ rad2deg = 1/deg2rad
 def tsearch_arbitrary(p, t, x, y):
 
     # Triangulador y finder para localizar el triángulo:
-    T = Triangulation(p[:,0],p[:,1],t)
+    T = Triangulation(p[:, 0], p[:, 1], t)
     finder = T.get_trifinder()
 
     # Con los datos calculados por el finder:
