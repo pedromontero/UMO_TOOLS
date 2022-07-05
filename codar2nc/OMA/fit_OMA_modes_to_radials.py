@@ -18,7 +18,7 @@ fit_OMA_modes_to_radials.py
 """
 import scipy.io
 
-mat = scipy.io.loadmat('modes.mat')
+mat = scipy.io.loadmat('modes07.mat')
 
 for key in mat.keys():
     print(key)

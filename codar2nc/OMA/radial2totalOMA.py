@@ -15,6 +15,9 @@ from glob import glob
 # Importamos lo necesario para poder procesar radiales:
 from radiales import Radial, Grid
 
+from datetime import datetime
+from oma import OMA
+
 deg2rad = np.pi/180
 rad2deg = 1/deg2rad
 
@@ -60,10 +63,6 @@ def plot_oma_and_total():
     ax1.set_aspect('equal')
     ax1.axis(a)
     plt.show()
-
-
-
-
 
 
 def plot_comparison():
@@ -206,7 +205,7 @@ if __name__ == '__main__':
     A = np.dot(modes.T, modes) # + K*q/2
     b = np.dot(modes.T, speed)
 
-    alpha = solve(A,b)
+    alpha = solve(A, b)
 
     # Velocidades totales interpoladas en la malla triangular:
     Ux = (m['ux_tri']*alpha).sum(axis=1)
@@ -241,6 +240,18 @@ if __name__ == '__main__':
 
     #plot_results_on_triangular_grid()
     #plot_comparison()
+
+    malla = xr.open_dataset('./datos/HFR-Galicia-Total_2022_04_01_0000.nc')
+    data = datetime(2022, 6, 27, 13, 13)
+    path_out = './datos'
+    file_out = 'test.nc'
+
+    oma = OMA(data, malla)
+    oma.change_data('EWCT',np.array([[Tx]]))
+    oma.change_data('NSCT', np.array([[Ty]]))
+
+    oma.to_netcdf(path_out, file_out)
+
     plot_oma_and_total()
 
 
