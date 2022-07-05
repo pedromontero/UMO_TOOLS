@@ -21,6 +21,7 @@ from oma import OMA
 deg2rad = np.pi/180
 rad2deg = 1/deg2rad
 
+
 def tsearch_arbitrary(p, t, x, y):
 
     # Triangulador y finder para localizar el triángulo:
@@ -107,7 +108,7 @@ if __name__ == '__main__':
     # File with precalculated modes:
     # path = './midemo/codigo_matlab/mi_demo/misdatos/'
     # path = './midemo/fit_OMA_modes_to_radials/'
-    path = './datos/'
+    path = './datos/inputs/'
     m = scipy.io.loadmat('%s/modes.mat' % path, variable_names=['pLonLat', 't', 'ux_tri', 'uy_tri', 'border'],struct_as_record=True, squeeze_me=True)
 
     # Nodes from resulted triangulation of pdetool
@@ -217,7 +218,7 @@ if __name__ == '__main__':
     finder = T.get_trifinder()
 
     # Necesitamos especificar una malla de salida. En este caso cogemos un fichero del THREDDS:
-    malla = xr.open_dataset('./datos/HFR-Galicia-Total_2022_04_01_0000.nc')
+    malla = xr.open_dataset('./datos/inputs/HFR-Galicia-Total_2022_04_01_0000.nc')
 
     #np.meshgrid(malla.lon,malla.lat)
 
@@ -241,13 +242,13 @@ if __name__ == '__main__':
     #plot_results_on_triangular_grid()
     #plot_comparison()
 
-    malla = xr.open_dataset('./datos/HFR-Galicia-Total_2022_04_01_0000.nc')
+    malla = xr.open_dataset('./datos/inputs/HFR-Galicia-Total_2022_04_01_0000.nc')
     data = datetime(2022, 6, 27, 13, 13)
     path_out = './datos'
     file_out = 'test.nc'
 
     oma = OMA(data, malla)
-    oma.change_data('EWCT',np.array([[Tx]]))
+    oma.change_data('EWCT', np.array([[Tx]]))
     oma.change_data('NSCT', np.array([[Ty]]))
 
     oma.to_netcdf(path_out, file_out)
