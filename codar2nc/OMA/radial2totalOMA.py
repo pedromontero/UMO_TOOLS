@@ -125,7 +125,7 @@ if __name__ == '__main__':
     radiales = []
     for prefijo in prefijos:
         # radiales += glob('%s/*_%s_2021_09_01_0000.ruv' % (path, prefijo)) # Solo una fecha de ejemplo
-         radiales += glob('%s/*_%s_2022_04_01_0000.ruv' % (path, prefijo))
+         radiales += glob('%s/*_%s_2022_07_04_0000.ruv' % (path, prefijo))
 
     R = []
 
