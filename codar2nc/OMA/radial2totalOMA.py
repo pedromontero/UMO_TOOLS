@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
 import numpy as np
 import scipy.io
 from matplotlib.tri import Triangulation
@@ -66,18 +67,18 @@ def plot_oma_and_total(malla, Tx, Ty):
     plt.show()
 
 
-def plot_comparison():
+def plot_comparison(malla, BX, BY, Ux, Uy, X, Y):
 
     fig1, ax1 = plt.subplots()
     ax1.quiver(malla.LONGITUDE, malla.LATITUDE, malla.EWCT.squeeze(), malla.NSCT.squeeze(), scale=10)
-    ax1.quiver(BX, BY, Uy, Uy, scale=10, color='r')
+    ax1.quiver(BX, BY, Ux, Uy, scale=10, color='r')
     ax1.plot(X, Y, 'b.')
     ax1.set_aspect('equal')
     plt.grid()
     plt.show()
 
 
-def plot_results_on_triangular_grid() -> object:
+def plot_results_on_triangular_grid(T, Ux, Uy, Tn, BX, BY, theta, X, Y, speed) -> object:
 
     # En la malla triangular:
     fig1, ax1 = plt.subplots()
@@ -103,11 +104,10 @@ def plot_results_on_triangular_grid() -> object:
     plt.show()
 
 
-def radial2oma():
+def radial2oma(oma_datetime):
 
     # File with precalculated modes:
-    # path = './midemo/codigo_matlab/mi_demo/misdatos/'
-    # path = './midemo/fit_OMA_modes_to_radials/'
+
     path = './datos/inputs/'
     m = scipy.io.loadmat('%s/modes.mat' % path, variable_names=['pLonLat', 't', 'ux_tri', 'uy_tri', 'border'],struct_as_record=True, squeeze_me=True)
 
@@ -119,13 +119,15 @@ def radial2oma():
     t -= 1  # Move to zero-based
 
     path = './datos/RadialFiles'
-    # prefijos = ['SILL', 'VILA', 'FIST', 'PRIO']
     prefijos = ['*']
+    sufix = oma_datetime.strftime('%Y_%m_%d_%H%M.ruv')
+
 
     radiales = []
     for prefijo in prefijos:
         # radiales += glob('%s/*_%s_2021_09_01_0000.ruv' % (path, prefijo)) # Solo una fecha de ejemplo
-         radiales += glob('%s/*_%s_2022_07_04_0000.ruv' % (path, prefijo))
+         radiales += glob('%s/*_%s_%s' % (path, prefijo, sufix))
+
 
     R = []
 
@@ -243,19 +245,19 @@ def radial2oma():
     #plot_comparison()
 
     malla = xr.open_dataset('./datos/inputs/HFR-Galicia-Total_2022_04_01_0000.nc')
-    data = datetime(2022, 6, 27, 13, 13)
     path_out = './datos'
-    file_out = 'test.nc'
+    file_out = oma_datetime.strftime('HFR-Galicia-OMA_%Y_%m_%d_%H%M.nc')
 
-    oma = OMA(data, malla)
+    oma = OMA(oma_datetime, malla)
     oma.change_data('EWCT', np.array([[Tx]]))
     oma.change_data('NSCT', np.array([[Ty]]))
 
     oma.to_netcdf(path_out, file_out)
 
-    plot_oma_and_total(malla, Tx, Ty)
+    # plot_oma_and_total(malla, Tx, Ty)
 
 
 if __name__ == '__main__':
-    radial2oma()
+    date_of_oma = datetime(2022,7,4,12,0)
+    radial2oma(date_of_oma)
 
