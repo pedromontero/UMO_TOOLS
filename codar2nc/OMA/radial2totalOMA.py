@@ -46,7 +46,7 @@ def tsearch_arbitrary(p, t, x, y):
     return Tn, A12, A13
 
 
-def plot_oma_and_total():
+def plot_oma_and_total(malla, Tx, Ty):
 
     fig1, ax1 = plt.subplots()
     # ax1.pcolor(malla.lon,malla.lat,np.sqrt(Tx**2+Ty**2),vmin=0,vmax=0.5)
@@ -103,7 +103,7 @@ def plot_results_on_triangular_grid() -> object:
     plt.show()
 
 
-if __name__ == '__main__':
+def radial2oma():
 
     # File with precalculated modes:
     # path = './midemo/codigo_matlab/mi_demo/misdatos/'
@@ -149,7 +149,7 @@ if __name__ == '__main__':
         # Nodos donde hay datos de radiales (hay 5 radiales, algunas sin datos. Cogemos la primera):
         x = r.variables['RDVA'].LONGITUDE.values.flatten()
         y = r.variables['RDVA'].LATITUDE.values.flatten()
-    
+
         # Búsqueda de nodos y cálculo de coordenadas baricentricas:
         [tn,a12,a13] = tsearch_arbitrary( p, t, x, y )
 
@@ -162,7 +162,7 @@ if __name__ == '__main__':
         Y.append(y)
         Tn.append(tn)
 
-        # Esto es delicado. Aquí hay que ver si se usan las direcciones locales o el bearing. No tienen por qué coincidir si la malla es grande. Es decir, 
+        # Esto es delicado. Aquí hay que ver si se usan las direcciones locales o el bearing. No tienen por qué coincidir si la malla es grande. Es decir,
         # Un determinado bearing constante implica direcciones geográficas diferentes a lo largo del rayo. Esto no se notará a una escala de 10 km pero si
         # a una escala de 100 km.
         head.append(r.variables['DRVA'].values.squeeze().flatten())
@@ -183,7 +183,7 @@ if __name__ == '__main__':
     theta = np.arctan2(-np.cos(head*deg2rad), -np.sin(head*deg2rad))
     speed = np.concatenate(speed)
 
-    # Ya en openMA_modes_fit_with_errors. Esto es la proyección de las amplitudes de los modos en la dirección del nodo, que no es otra cosa que 
+    # Ya en openMA_modes_fit_with_errors. Esto es la proyección de las amplitudes de los modos en la dirección del nodo, que no es otra cosa que
     # el producto escalar de (ux,uy) por el vector unitario (cos(theta),sin(theta)):
     modes = (ux.T*np.cos(theta) + uy.T*np.sin(theta)).T
 
@@ -199,7 +199,7 @@ if __name__ == '__main__':
     Y = Y[condicion]
     Tn = Tn[condicion]
 
-    # Estos factores... no he investigado lo que son... Tampoco calculamos con matriz de pesos. 
+    # Estos factores... no he investigado lo que son... Tampoco calculamos con matriz de pesos.
     # q = modes.shape[0]
     # K = float(entrada['p']['K'])
 
@@ -253,6 +253,9 @@ if __name__ == '__main__':
 
     oma.to_netcdf(path_out, file_out)
 
-    plot_oma_and_total()
+    plot_oma_and_total(malla, Tx, Ty)
 
+
+if __name__ == '__main__':
+    radial2oma()
 
