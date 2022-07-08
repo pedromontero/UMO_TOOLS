@@ -1,22 +1,22 @@
 {
-    "path_in": "..\\..\\datos\\drawmodels\\in",
-    "path_out": "..\\..\\datos\\drawmodels\\OUT",
-    "file_in": "MOHID_Hydrodynamic_Arousa_20170524_0000.hdf5",
-    "file_out": "Hydrodynamic_Arousa_Sup",
+    "path_in": "..\\..\\codar2nc\\OMA\\datos",
+    "path_out": "..\\..\\codar2nc\\OMA\\datos",
+    "file_in": "HFR-Galicia-OMA_2022_07_04_0100.nc",
+    "file_out": "HFR-Galicia-OMA_",
     "nx": 1,
     "ny": 1,
-    "u": "eastward_velocity",
-    "v": "northward_velocity",
-    "resolution": "f",
+    "u": "eastward_sea_water_velocity",
+    "v": "northward_sea_water_velocity",
+    "resolution": "i",
     "scale": 5,
     "n_time": 1,
-    "n_level": 26,
+    "n_level": 0,
     "title": "surface current:",
     "style": "cvector",
     "limits": [
-        42.5820,
-        42.6667,
-        -8.9406,
-        -8.7281
+        40.75,
+        44.55,
+        -11.0,
+        -7.8
     ]
 }

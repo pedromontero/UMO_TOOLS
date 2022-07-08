@@ -16,7 +16,7 @@ from glob import glob
 # Importamos lo necesario para poder procesar radiales:
 from radiales import Radial, Grid
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from oma import OMA
 
 deg2rad = np.pi/180
@@ -258,6 +258,13 @@ def radial2oma(oma_datetime):
 
 
 if __name__ == '__main__':
-    date_of_oma = datetime(2022,7,4,12,0)
-    radial2oma(date_of_oma)
+    date_of_oma = datetime(2022, 7, 4)
+    print('RADIAL2OMA STARTED...')
+    print(date_of_oma.strftime('for the day %Y-%m-%d '))
+    for hour in range(0, 24):
+        datetime_of_oma = date_of_oma + timedelta(hours=hour)
+        print(datetime_of_oma.strftime('I will create the OMA of %Y-%m-%d %H:%M'))
+        radial2oma(datetime_of_oma)
+        print(datetime_of_oma.strftime('OMA of %Y-%m-%d %H:%M done'))
+    print('Program oma2radial finished')
 
