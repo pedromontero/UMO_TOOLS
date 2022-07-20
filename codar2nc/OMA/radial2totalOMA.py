@@ -258,7 +258,7 @@ def radial2oma(oma_datetime):
 
 
 if __name__ == '__main__':
-    date_of_oma = datetime(2022, 7, 4)
+    date_of_oma = datetime(2022, 1, 7)
     print('RADIAL2OMA STARTED...')
     print(date_of_oma.strftime('for the day %Y-%m-%d '))
     for hour in range(0, 24):

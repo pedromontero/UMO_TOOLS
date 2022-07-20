@@ -39,7 +39,7 @@ class Radials:
 if __name__ == '__main__':
 
     working_folder = './datos/RadialFiles'
-    date_file = datetime(2022, 7, 4)
+    date_file = datetime(2022, 5, 1)
     radials = Radials()
     radials.copy_radials(date_file)
 
