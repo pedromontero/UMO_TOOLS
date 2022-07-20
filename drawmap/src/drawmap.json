@@ -1,22 +1,22 @@
 {
-    "path_in": "..\\..\\codar2nc\\OMA\\datos",
-    "path_out": "..\\..\\codar2nc\\OMA\\datos",
-    "file_in": "HFR-Galicia-OMA_2022_07_04_0100.nc",
-    "file_out": "HFR-Galicia-OMA_",
-    "nx": 1,
-    "ny": 1,
-    "u": "eastward_sea_water_velocity",
-    "v": "northward_sea_water_velocity",
-    "resolution": "i",
+    "path_in": "..\\..\\datos\\drawmap",
+    "path_out": "..\\..\\datos\\drawmap",
+    "file_in": "Hydrodynamic_5.hdf5",
+    "file_out": "lombos",
+    "nx": 3,
+    "ny": 3,
+    "u": "eastward_velocity",
+    "v": "northward_velocity",
+    "resolution": "f",
     "scale": 5,
-    "n_time": 1,
-    "n_level": 0,
+    "n_time": 3,
+    "n_level": 9,
     "title": "surface current:",
     "style": "cvector",
     "limits": [
-        40.75,
-        44.55,
-        -11.0,
-        -7.8
+        42.5820,
+        42.6667,
+        -8.9406,
+        -8.7281
     ]
 }

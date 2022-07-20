@@ -61,7 +61,7 @@ def main():
 
     # Read input file
     inputs = read_inputs('drawmap.json')
-    draw_map_1(inputs, 0)
+    draw_map_1(inputs, 3)
     #draw_map_24(inputs)
 
 def draw_map_1(inputs, n ):
@@ -71,6 +71,8 @@ def draw_map_1(inputs, n ):
 
     draw_map.create_title(n)
     draw_map.reader_uv_by_time(n)
+    print(draw_map.lats.shape, draw_map.lons.shape)
+    print(draw_map.us.shape, draw_map.vs.shape)
     print(draw_map.title_full)
     draw_map.draw()
 
@@ -83,6 +85,7 @@ def draw_map_24(inputs):
         draw_map.create_title(n)
         draw_map.reader_uv_by_time(n)
         print(draw_map.title_full)
+
         draw_map.draw()
 
 
@@ -127,11 +130,11 @@ class DrawMap:
             lon = self.reader.longitudes
 
             if self.reader.coordinates_rank == 1:
-                self.lats = lat[0:self.reader.n_latitudes - 1]
-                self.lons = lon[0:self.reader.n_longitudes - 1]
+                self.lats = lat[0:self.reader.n_latitudes - 2]  # ATENCIóN:Esto y lo de abajo era -1, revisar
+                self.lons = lon[0:self.reader.n_longitudes - 2]
             elif self.reader.coordinates_rank == 2:
-                self.lats = lat[0:self.reader.n_longitudes - 1, 0:self.reader.n_latitudes - 1]
-                self.lons = lon[0:self.reader.n_longitudes - 1, 0:self.reader.n_latitudes - 1]
+                self.lats = lat[0:self.reader.n_longitudes - 2, 0:self.reader.n_latitudes - 2]
+                self.lons = lon[0:self.reader.n_longitudes - 2, 0:self.reader.n_latitudes - 2]
 
     def create_title(self, n_time):
         with self.reader.open():
