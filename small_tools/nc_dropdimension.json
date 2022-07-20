@@ -1,0 +1,5 @@
+{
+  "file_in": "HFR-Galicia-OMA_2022_07_04_nodepth.nc",
+  "dimension":  "DEPTH",
+  "file_out":  "HFR-Galicia-OMA_2022_07_04_nodepth_true.nc"
+}
