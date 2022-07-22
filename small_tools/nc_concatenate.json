@@ -1,0 +1,6 @@
+{"file_in_prefix":  "./../codar2nc/OMA/datos/HFR-Galicia-OMA_",
+  "initial_date": "2022-01-01",
+  "number_days": 7,
+  "dimension":  "TIME",
+  "file_out":  "omas.nc"
+}

@@ -38,9 +38,7 @@ class NcDropDimension:
         print(f'NETcdf output: {self.file_out}')
 
     def drop_dim(self):
-        del self.ds['DEPH']
-         #self.ds.reset_coords('DEPH', drop=True)
-        #self.ds.drop_dims(self.dimension)
+        self.ds.drop_dims(self.dimension)
 
     def get_array(self, name):
         return self.ds.Datarray()
