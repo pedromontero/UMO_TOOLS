@@ -1,0 +1,42 @@
+{
+"ensemble":{
+    "dt":"86400s",
+    "members":2
+    },
+"r0": {
+    "state_setup":{
+    "state":["LONGITUDE","LATITUDE"],
+    "state_t":["LONGITUDE","LATITUDE"],
+    "input_file":"oma.nc"
+    },
+    "time_range" : ["2022-01-07 23:00:00","2022-01-01 00:00:00","-1200s"],
+    "reference_time" : "2010-01-01 00:00:00"
+    },
+"input_fields" :{
+        "velocity":{
+            "file_name":"oma_nodepth_time.nc",
+            "dims_dataset":["LONGITUDE","LATITUDE","time"],
+            "dims_fields":["LONGITUDE","LATITUDE","time"],
+            "dims_order":[1,1,1],
+            "fields":["EWCT","NSCT"],
+            "reference_time" : "2010-01-01 00:00:00"
+            }
+        },
+"solver":{
+        "solver":"Euler",
+        "print_screen":0
+        },
+"kernel":{
+        "kernel": "LagrangianSpherical"
+    	},
+"output" :{
+        "mem_or_disk": "mem",
+        "path": "./",
+        "pattern":"B_",
+        "extension":".nc",
+        "var_names":["LONGITUDE","LATITUDE"],
+        "save_every_n_steps" : 1,
+        "simulation_type":"emission",
+        "print_screen":0
+        }
+}

@@ -3,7 +3,7 @@
 """
 nc_dropdimension.py
 
-@Purpose: remove a dimension from a netcdf file
+@Purpose: add a var simmilar to other one and fill it with zeros
 @version: 1.0
 
 @python version: 3.9
@@ -22,11 +22,12 @@ import xarray as xr
 from common import read_input
 
 
-class NcDropDimension:
+class NcAddVar:
 
-    def __init__(self, file_in, dimension, file_out):
+    def __init__(self, file_in, new_var, var_alike, file_out):
         self.file_in = file_in
-        self.dimension = dimension
+        self.new_var = new_var
+        self.var_alike = var_alike
         self.file_out = file_out
         self.ds = None
 
@@ -37,18 +38,17 @@ class NcDropDimension:
         self.ds_new.to_netcdf(self.file_out)
         print(f'NETcdf output: {self.file_out}')
 
-    def drop_dim(self):
-        self.ds_new = self.ds.mean(dim=self.dimension)
-        #self.ds_new.drop_dims(self.dimension)
+    def add_var(self):
+        self.ds_new = self.ds.assign(DEPTH=self.ds[self.var_alike] * 0)
 
     def get_array(self, name):
         return self.ds.Datarray()
 
-    def drop_dimension(self):
+    def add_variable(self):
         self.ds = self.get_ds()
        # self.ds.squeeze('DEPTH')
         print(self.ds)
-        self.drop_dim()
+        self.add_var()
 
         print('\n\n')
 
@@ -56,14 +56,15 @@ class NcDropDimension:
         self.write_ds()
 
 
-
 if __name__ == '__main__':
     # input
-    input_keys = ['file_in', 'dimension', 'file_out']
-    inputs = read_input('nc_dropdimension.json', input_keys)
+    input_keys = ['file_in', 'new_var', 'var_alike', 'file_out']
+    inputs = read_input('nc_addvar.json', input_keys)
     # end input
 
-    nc = NcDropDimension(inputs['file_in'],
-                                        inputs['dimension'],
-                                        inputs['file_out'])
-    nc.drop_dimension()
+    nc = NcAddVar(inputs['file_in'],
+                  inputs['new_var'],
+                  inputs['var_alike'],
+                  inputs['file_out'])
+
+    nc.add_variable()

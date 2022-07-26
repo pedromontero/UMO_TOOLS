@@ -1,0 +1,6 @@
+{
+  "file_in": "oma_nodepth.nc",
+  "old_name":  "TIME",
+  "new_name": "time",
+  "file_out":  "oma_nodepth_time.nc"
+}

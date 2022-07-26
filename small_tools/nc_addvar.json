@@ -1,0 +1,6 @@
+{
+  "file_in": "000_B_LAGAR.nc",
+  "new_var":  "DEPTH",
+  "var_alike": "LATITUDE",
+  "file_out":  "LAGAR_FTLE.nc"
+}
