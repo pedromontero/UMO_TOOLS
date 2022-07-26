@@ -14,16 +14,16 @@ class ReaderNetCDF(Reader):
     def close(self):
         self.dataset.close()
 
-    def get_latitudes(self, latitude_name='latitude'):
-        lat_in = self.get_var(latitude_name)
+    def get_latitudes(self):
+        lat_in = self.get_var()
         if len(lat_in.shape) == 1:
             self.n_latitudes = lat_in.shape[0]
         elif len(lat_in.shape) == 2:
             self.n_latitudes = lat_in.shape[1]
         return lat_in
 
-    def get_longitudes(self, longitude_name='longitude'):
-        lon_in = self.get_var(longitude_name)
+    def get_longitudes(self):
+        lon_in = self.get_var()
         if len(lon_in.shape) == 1:
             self.n_longitudes = lon_in.shape[0]
         elif len(lon_in.shape) == 2:
