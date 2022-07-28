@@ -15,7 +15,7 @@ class ReaderNetCDF(Reader):
         self.dataset.close()
 
     def get_latitudes(self):
-        lat_in = self.get_var()
+        lat_in = self.get_var('latitude')
         if len(lat_in.shape) == 1:
             self.n_latitudes = lat_in.shape[0]
         elif len(lat_in.shape) == 2:
@@ -23,7 +23,7 @@ class ReaderNetCDF(Reader):
         return lat_in
 
     def get_longitudes(self):
-        lon_in = self.get_var()
+        lon_in = self.get_var('longitude')
         if len(lon_in.shape) == 1:
             self.n_longitudes = lon_in.shape[0]
         elif len(lon_in.shape) == 2:
@@ -41,7 +41,7 @@ class ReaderNetCDF(Reader):
         return self.get_var(var_name)[n_time, ]
 
     def get_var(self, var_name):
-        """Return values using the CF standard name of a variable in a netCDF file."""
+        """Return values using the CF standard name, long_name or the simple name of a variable in a netCDF file."""
         for var in self.variables:
             for atributo in (self.variables[var].ncattrs()):
                 if atributo == 'standard_name':
@@ -52,6 +52,8 @@ class ReaderNetCDF(Reader):
                     nome_atributo = (getattr(self.variables[var], 'long_name'))
                     if nome_atributo == var_name:
                         return self.variables[var]
+                elif var == var_name:
+                    return self.variables[var]
 
     def get_ini_ntime(self):
         return 0
