@@ -1,6 +1,6 @@
 {
-  "file_in": "oma_nodepth.nc",
-  "old_name":  "TIME",
-  "new_name": "time",
-  "file_out":  "oma_nodepth_time.nc"
+  "file_in": "../datos/ftle/000_FTLE_new1.nc",
+  "old_name":  "z0",
+  "new_name": "level",
+  "file_out":  "../datos/ftle/000_FTLE_new2.nc"
 }
